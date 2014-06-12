@@ -1,12 +1,9 @@
 {
-  "course": {
-    "title": "Deep Dive",
-    "description": "This is a deep dive course"
-  },
-  "loader": {
+  "welcomeContent": {
     "id": "loader",
-    "class": "jp-loader",
-    "layout": "welcome",
-    "html": "Please wait while the course loads....."
+    "class": "welcome-loader",
+    "header":"Welcome",
+    "subHeader":"Please wait while the course loads.....",
+    "footer":"Company logo"
   }
 }

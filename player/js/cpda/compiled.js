@@ -30,15 +30,15 @@ jp.jsonData = [];
  */
 if (jp.PRODUCTION) {
   jp.libraries = [
-  'js/lib/min/modernizr-min.js',
+  'js/lib/min/modernizr.min.js',
   'js/lib/min/jquery-1.11.1-min.js',
-  'js/lib/dust-full-0.6.0.js'
+  'js/lib/min/dust-full-0.3.0.min.js'
   ];
 } else {
   jp.libraries = [
   'js/lib/modernizr.js',
   'js/lib/jquery-1.11.1.js',
-  'js/lib/dust-full-0.6.0.js'
+  'js/lib/dust-full-0.3.0.js'
   ];
 };
 
@@ -54,7 +54,10 @@ jp.libraryAPIs = ['Modernizr', 'jQuery', 'dust'];
 jp.ErrorCodes = {
   'libraryLoad': {'code': 'loader-001', 'detail': 'Error loading libraries'},
   'jsonLoad': {'code': 'loader-002', 'detail': 'Error loading json files'},
-  'dustError': {'code': 'dust-001', 'detail': 'Error parsing dust file'}
+  'dustError': {'code': 'dust-001', 'detail': 'Error parsing dust file'},
+  'dustMarkup': {'code': 'dust-002', 'detail': 'Dust markup missing'},
+  'layoutMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
+  'layoutContentMissing': {'code': 'dust-004', 'detail': 'Dust layout content missing'}
 }
 
 
@@ -132,12 +135,14 @@ jp.getAssetPaths = function() {
   //The Asset paths to load
   assetPaths = [
   'assets/global/js/config.js',
+  'assets/' + language + '/js/config.js',
   'assets/' + language + '/js/localization.js'
   ];
 
   if (courseId) {
     assetPaths.push(
     '../courses/' + courseId + '/assets/global/js/config.js',
+    '../courses/' + courseId + '/assets/' + language + '/js/config.js',
     '../courses/' + courseId + '/assets/' + language + '/js/localization.js'
     );
   }
@@ -168,7 +173,7 @@ jp.verifyAPIs = function() {
  * @param {Function} callback the callback function.
 */
 jp.loadJSON = function(paths, callback) {
-  var path = paths[0];
+  var path = paths[0], request;
 
   if (!path) {
     return;
@@ -176,13 +181,15 @@ jp.loadJSON = function(paths, callback) {
   // remove the path from the array
   paths.shift();
   // get the json file
-  $.getJSON(path, function(data) {
+  request = $.getJSON(path, function(data) {
     // run the callback with the data
     callback(data);
     // reload this function until there are no more paths
     jp.loadJSON(paths, callback);
   }).fail(function(data, response) {
     jp.error(jp.ErrorCodes['jsonLoad'], path + ' ' + response);
+    jp.loadJSON(paths, callback);
+    callback({});
   });
 };
 
@@ -206,7 +213,47 @@ jp.handleJSONLoad = function(data) {
 jp.activate = function() {
   jp.welcome();
   // Load the layouts
-  jp.layouts.load('assets/global/layouts/chapter.html');
+  if (jp.getLayout()) {
+    jp.layouts.load('assets/global/layouts/' + jp.getLayout() + '.html');
+  } else {
+    cpda.error(jp.ErrorCodes['layoutMissing']);
+  }
+};
+
+
+/*
+ * Sets the layout
+ * @param {string} layout the layout name.
+*/
+jp.setLayout = function(layout) {
+  jp.layout = layout;
+};
+
+
+/*
+ * Gets the layout
+ * @return {string} the layout name.
+*/
+jp.getLayout = function() {
+  return jp.layout;
+};
+
+
+/*
+ * Sets the layout content
+ * @param {string} layoutContent the layout name.
+*/
+jp.setLayoutContent = function(layoutContent) {
+  jp.layoutContent = layoutContent;
+};
+
+
+/*
+ * Gets the layout content
+ * @return {string} the layout name.
+*/
+jp.getLayoutContent = function() {
+  return jp.layoutContent;
 };
 
 
@@ -215,12 +262,15 @@ jp.activate = function() {
 */
 jp.welcome = function() {
   var div,
-      html = jp.utility.getJsonData(['loader', 'html'], jp.jsonData) || 'Loading...',
-      className = jp.utility.getJsonData(['loader', 'class'], jp.jsonData) || 'loader',
-      id = jp.utility.getJsonData(['loader', 'id'], jp.jsonData) || 'loader',
-      title = jp.utility.getJsonData(['course', 'title'], jp.jsonData) || 'Course Title';
+      title = jp.utility.getJsonData(['course', 'title'], jp.jsonData),
+      className = jp.utility.getJsonData(['loader', 'class'], jp.jsonData),
+      id = jp.utility.getJsonData(['loader', 'id'], jp.jsonData),
+      layout = jp.utility.getJsonData(['loader', 'layout'], jp.jsonData);
+      layoutContent = jp.utility.getJsonData(['loader', 'layoutContent'], jp.jsonData);
 
-  div = jp.ui.createElement('div', id, className, html);
+  jp.setLayout(layout);
+  jp.setLayoutContent(layoutContent);
+  div = jp.ui.createElement('div', id, className);
   $('body').append(div);
   document.title = title;
   jp.welcomeDiv = div;
@@ -255,9 +305,9 @@ jp.ui.setHtmlById = function(id, innerHTML) {
 /*
  * Creates an element
  * @param {string} type the element type.
- * @param {string} id the element id.
- * @param {string} className the element class.
- * @param {string} innerHTML the innerHtml to set.
+ * @param {string=} id the element id.
+ * @param {string=} className the element class.
+ * @param {string=} innerHTML the innerHtml to set.
  * @return {Element} the element created
 */
 jp.ui.createElement = function(type, id, className, innerHTML) {
@@ -313,7 +363,7 @@ jp.layouts = {};
 
 
 /*
- * Gets a layout based on a path and renders it once loaded.
+ * Gets a dust layout based on a path and renders it once loaded.
  * @param {string} path the uri of the layout to load.
  * @param {Element=} optParent the optional parent element to load the template into.
 */
@@ -331,18 +381,31 @@ jp.layouts.load = function(path, optParent) {
 
 
 /*
- * Renders a layout
- * @param {string} data the layout data.
+ * Renders a dust layout to the dom
+ * @param {string} name the layout name.
  * @param {Element} parent the parent element to load the template into.
 */
 jp.layouts.render = function(name, parent) {
-  var callback = function(error, info) {
-    if (error) {
-      jp.error(jp.ErrorCodes['dustError'], error);
-      return;
-    }
-    jp.removeWelcome();
-    $(parent).append(info);
-  };
-  dust.render(name, {}, callback);
+  var jsonData = jp.jsonData[jp.getLayoutContent()],
+      callback = function(error, info) {
+        if (error) {
+          jp.error(jp.ErrorCodes['dustError'], error);
+          return;
+        }
+      jp.removeWelcome();
+      $(parent).append(info);
+    };
+  if (!jsonData) {
+    jp.error(jp.ErrorCodes['dustMarkup']);
+  } else {
+    dust.render(name, jsonData, callback);
+  }
 };
+
+
+
+
+
+
+
+
