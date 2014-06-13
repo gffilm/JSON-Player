@@ -1,7 +1,7 @@
 {
   "course": {
-    "title": "not set",
-    "description": "not set"
+    "title": "Course Title",
+    "description": "Course Description"
   },
   "loader": {
     "layout": "basic",
@@ -9,7 +9,7 @@
   },
   "player": {
     "layout": "player",
-    "style": "player",
+    "style": ["canvas", "player"],
     "styleContent": "playerCss",
     "layoutContent": "playerContent"
   },
@@ -18,8 +18,9 @@
     "class": "jp-player",
     "buttons":[
         {"button": false, "id": "skip-nav","class": "hidden", "html":"skip content", "tabIndex": 1},
+        {"button": true, "id": "reboot", "html":"reboot", "tabIndex": 1},
         {"button": true, "id": "menu", "html":"home", "tabIndex": 2},
-        {"button": true, "id": "cc", "html":"transcript", "tabIndex": 3},
+        {"button": true, "id": "cc", "html":"cc", "tabIndex": 3},
         {"button": true, "id": "mute", "html":"mute", "tabIndex": 4},
         {"button": false, "id": "title",  "class": "title", "html":"course title", "tabIndex": 5},
         {"button": true, "id": "play", "html":"play", "tabIndex": 6},
@@ -33,6 +34,7 @@
     "buttonBgColor":"#000",
     "buttonHoverColor":"#ccc",
     "buttonBgHoverColor":"#222",
-    "progressBarColor":"#a58306"
+    "progressBarColor":"#a58306",
+    "focus":"3px solid #d85a1a"
   }
 }

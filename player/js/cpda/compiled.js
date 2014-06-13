@@ -162,7 +162,8 @@ jp.events = {
   layoutLoad: 'layoutLoad',
   styleLoad: 'styleLoad',
   styleLoaded: 'styleLoaded',
-  elementRendered: 'elementRendered'
+  elementRendered: 'elementRendered',
+  reboot: 'reboot'
 };
 
 /*
@@ -249,8 +250,19 @@ jp.events.talk = function(self, voice) {
  * @public
 */
  jp.startup = function() {
-  jp.engine = new jp.engine();
-  jp.engine.load(jp.bind(jp.engine.init, jp.engine));
+  // Remove the startup script
+  document.body.children[0].remove();
+  jp.engineInstance = new jp.engine();
+  jp.engineInstance.load(jp.bind(jp.engineInstance.init, jp.engineInstance));
+};
+
+/*
+ * Restart the engine for debugging purposes
+ * @public
+*/
+ jp.restart = function() {
+  jp.engineInstance = null;
+   jp.startup();
 };
 
 /*
@@ -392,9 +404,16 @@ jp.engine.prototype.activate = function() {
 */
 jp.engine.prototype.loadStyles = function() {
   this.style_.renderJsonStyles(this.modelName_, this.getJsonData());
+  var  styles = this.style_.getStyles(),
+      totalStyles = styles.length,
+      i;
+
+  
   // Load the layouts
-  if (this.style_.getStyle()) {
-    this.style_.loadStyle(this.modelName_, 'assets/global/styles/' + this.style_.getStyle() + '.css');
+  if (styles) {
+    for (i = 0; i < totalStyles; i++) {
+      this.style_.loadStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
+    }
   } else {
     jp.error(jp.errorCodes['styleMissingFromConfig']);
   }
@@ -434,19 +453,32 @@ jp.engine.prototype.setButtonEvents = function() {
 
   for (i = 0; i < totalButtons; i++) {
     button = buttons[i];
-    this.addEvent(button);
+    this.onClickEvent(button);
   }
 
   this.layout_.renderDom();
 };
 
 /*
- * Adds an event for an element
+ * Handles event for an element
 */
-jp.engine.prototype.addEvent = function(element) {
-  $(element).click(function(evt) {
-    console.log(evt.currentTarget);
-  });
+jp.engine.prototype.onClickEvent = function(element) {
+  var callback;
+
+  switch (element.id) {
+    case 'reboot':
+      callback = jp.restart;
+      break;
+    case 'menu':
+      callback = jp.restart;
+      break;
+    default:
+      return;
+  }
+
+  $(element).bind('click', (function(evt) {
+    callback();
+  }));
 };
 
 
@@ -573,7 +605,7 @@ jp.layouts.prototype.getLayoutContent = function() {
 
 /*
  * Sets the style
- * @param {string} style the style name.
+ * @param {string|Array} style the style name.
 */
 jp.layouts.prototype.setStyle = function(style) {
   this.style_ = style;
@@ -582,9 +614,9 @@ jp.layouts.prototype.setStyle = function(style) {
 
 /*
  * Gets the style
- * @return {string} the style name.
+ * @return {string|Array} the style name.
 */
-jp.layouts.prototype.getStyle = function() {
+jp.layouts.prototype.getStyles = function() {
   return this.style_;
 };
 
@@ -658,7 +690,7 @@ jp.layouts.prototype.loadLayout = function(name, path) {
  * @param {string} name the layout name.
 */
 jp.layouts.prototype.renderLayout = function(name) {
-  var data = jp.engine.getJsonData(),
+  var data = jp.engineInstance.getJsonData(),
       layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
       element;
@@ -740,7 +772,7 @@ jp.layouts.prototype.loadStyle = function(name, path) {
  * @param {Element} parent the parent element to load the template into.
 */
 jp.layouts.prototype.renderStyle = function(name, parent) {
-  var data = jp.engine.getJsonData(),
+  var data = jp.engineInstance.getJsonData(),
       styleContent = this.getStyleContent(),
       jsonData = data[styleContent],
       callback = function(error, info) {
@@ -773,6 +805,7 @@ jp.layouts.prototype.getCssNode = function() {
   cssNode.type = 'text/css';
   head.appendChild(cssNode);
   this.cssNode_ = cssNode;
+  mynode = this.cssNode_;
   return this.cssNode_;
 };
 
