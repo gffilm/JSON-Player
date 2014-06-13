@@ -5,11 +5,12 @@
 	<div class="course-title">{courseTitle}</div>
 	<div class="control-bar-buttons">
 	  {#buttons}
-		{?button}<div id="{id}" class="{class}" role="button">{html}</div>
-			{:else}
-			<div id="{id}" class="{class}">{html}</div>
+		{?button}
+		<div id="{id}" class="{class} button" role="button" tabIndex="{?tabIndex}{tabIndex}{:else}-1{/tabIndex}">{html}</div>
+		{:else}
+		<div id="{id}" class="{class}" tabIndex="{?tabIndex}{tabIndex}{:else}-1{/tabIndex}">{html}</div>
 		{/button}
-  	  {/buttons}
+	  {/buttons}
 	</div>
 </div>
 </div>
