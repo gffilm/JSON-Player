@@ -190,12 +190,11 @@ jp.events = {
  * Loads libraries using yepNope
 */
 jp.engine.prototype.load = function() {
-  var that = this;
   yepnope({
     load: this.libraries_,
     complete: function() {
-      that.init();
-    }
+      this.init();
+    }.bind(this)
   });
 };
 
@@ -267,7 +266,7 @@ jp.engine.prototype.verifyAPIs = function() {
  * @param {Function} callback the callback function.
 */
 jp.engine.prototype.loadJSON = function(paths, callback) {
-  var path = paths[0], request, that = this;
+  var path = paths[0], request;
 
   if (!path) {
     return;
@@ -279,12 +278,13 @@ jp.engine.prototype.loadJSON = function(paths, callback) {
     // run the callback with the data
     callback(data);
     // reload this function until there are no more paths
-    that.loadJSON(paths, callback);
-  }).fail(function(data, response) {
+    this.loadJSON(paths, callback);
+  }.bind(this)).fail(function(data, response) {
+    // load failure handler
     jp.error(jp.ErrorCodes['jsonLoad'], path + ' ' + response);
-    that.loadJSON(paths, callback);
+    this.loadJSON(paths, callback);
     callback({});
-  });
+  }.bind(this));
 };
 
 
