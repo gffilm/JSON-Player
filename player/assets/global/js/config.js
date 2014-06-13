@@ -1,10 +1,16 @@
 {
+  "course": {
+    "title": "not set",
+    "description": "not set"
+  },
   "loader": {
     "layout": "basic",
     "layoutContent": "welcomeContent"
   },
-  "page1": {
-    "layout": "basic",
-    "layoutContent": "page1Content"
+  "player": {
+    "layout": "player",
+    "style": "player",
+    "styleContent": "playerContent",
+    "layoutContent": "playerContent"
   }
 }

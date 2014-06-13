@@ -77,6 +77,42 @@ jp.bind = function(fn, selfObj, var_args) {
 };
 
 
+/*
+ * The Utility class
+*/
+jp.utility = function() {};
+
+
+/*
+ * Gets a uri parameter.
+ * @param {string} param the uri param to try for.
+ * @return {string} the param or null.
+*/
+jp.utility.prototype.getUrlParams = function(param) {
+  return decodeURIComponent(
+    (new RegExp('[?|&]' + param + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) ||
+      [,""])[1].replace(/\+/g, '%20')) || null;
+
+};
+
+
+/*
+ * Finds json data from a haystack.
+ * @param {Array} needles the data to look for.
+ * @param {Object} haystack the data to search through.
+ * @return {*} the data or null.
+*/
+jp.utility.prototype.findJsonData = function(needles, haystack) {
+  var i, needle, found = false;
+  for (i in needles) {
+    needle = needles[i];
+    if (haystack[needle]) {
+      haystack = haystack[needle];
+      found = true;
+    }
+  }
+  return found ? haystack : null;
+};
 
 
 
@@ -114,12 +150,15 @@ jp.errorCodes = {
   'dustMarkup': {'code': 'dust-002', 'detail': 'Dust markup missing'},
   'layoutMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
   'layoutMissingFromConfig': {'code': 'dust-004', 'detail': 'Dust layout missing from config'},
-  'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'}
+  'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'},
+  'styleMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
+  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'},
 };
 
 
 jp.events = {
-  layoutLoad: 'layoutLoad'
+  layoutLoad: 'layoutLoad',
+  styleLoad: 'styleLoad'
 };
 
 
@@ -300,8 +339,18 @@ jp.engine.prototype.handleJSONLoad = function(data) {
   $.extend(this.jsonData_, data);
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
-    this.loadLayouts('loader');
+    this.activate();
   }
+};
+
+
+/*
+ * The engine is now loaded and can start its real work
+*/
+jp.engine.prototype.activate = function() {
+  document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
+  this.loadLayouts('player');
+  this.loadStyles('player');
 };
 
 
@@ -313,16 +362,38 @@ jp.engine.prototype.loadLayouts = function(modelName) {
   var layout = new jp.layouts, eventHandler;
 
   eventHandler = function(evt) {
-    layout.render(modelName, 'body');
+    layout.renderLayout(modelName, 'body');
   }.bind(this);
 
-  layout.renderJson(modelName, this.getJsonData());
+  layout.renderJsonLayouts(modelName, this.getJsonData());
   // Load the layouts
   if (layout.getLayout()) {
     $(layout).bind(jp.events.layoutLoad, eventHandler);
-    layout.load(modelName, 'assets/global/layouts/' + layout.getLayout() + '.html');
+    layout.loadLayout(modelName, 'assets/global/layouts/' + layout.getLayout() + '.html');
   } else {
     jp.error(jp.errorCodes['layoutMissingFromConfig']);
+  }
+};
+
+
+/*
+ * Loads the layout for a specific model
+ * @param {string} modelName the json key.
+*/
+jp.engine.prototype.loadStyles = function(modelName) {
+  var layout = new jp.layouts, eventHandler;
+
+  eventHandler = function(evt) {
+    layout.renderStyle(modelName, 'body');
+  }.bind(this);
+
+  layout.renderJsonStyles(modelName, this.getJsonData());
+  // Load the layouts
+  if (layout.getStyle()) {
+    $(layout).bind(jp.events.styleLoad, eventHandler);
+    layout.loadStyle(modelName, 'assets/global/styles/' + layout.getStyle() + '.css');
+  } else {
+    jp.error(jp.errorCodes['styleMissingFromConfig']);
   }
 };
 
@@ -367,43 +438,6 @@ jp.ui.prototype.createElement = function(type, id, className, innerHTML) {
     'class': className
   });
 }
-
-
-/*
- * The Utility class
-*/
-jp.utility = function() {};
-
-
-/*
- * Gets a uri parameter.
- * @param {string} param the uri param to try for.
- * @return {string} the param or null.
-*/
-jp.utility.prototype.getUrlParams = function(param) {
-  return decodeURIComponent(
-    (new RegExp('[?|&]' + param + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) ||
-      [,""])[1].replace(/\+/g, '%20')) || null;
-
-};
-
-/*
- * Finds json data from a haystack.
- * @param {Array} needles the data to look for.
- * @param {Object} haystack the data to search through.
- * @return {*} the data or null.
-*/
-jp.utility.prototype.findJsonData = function(needles, haystack) {
-  var i, needle, found = false;
-  for (i in needles) {
-    needle = needles[i];
-    if (haystack[needle]) {
-      haystack = haystack[needle];
-      found = true;
-    }
-  }
-  return found ? haystack : null;
-};
 
 
 /*
@@ -460,12 +494,47 @@ jp.layouts.prototype.getLayoutContent = function() {
   return this.layoutContent_;
 };
 
+
 /*
- * Set
+ * Sets the style
+ * @param {string} style the style name.
+*/
+jp.layouts.prototype.setStyle = function(style) {
+  this.style_ = style;
+};
+
+
+/*
+ * Gets the style
+ * @return {string} the style name.
+*/
+jp.layouts.prototype.getStyle = function() {
+  return this.style_;
+};
+
+/*
+ * Sets the style content
+ * @param {string} styleContent the style name.
+*/
+jp.layouts.prototype.setStyleContent = function(styleContent) {
+  this.styleContent_ = styleContent;
+};
+
+
+/*
+ * Gets the style content
+ * @return {string} the style name.
+*/
+jp.layouts.prototype.getStyleContent = function() {
+  return this.styleContent_;
+};
+
+/*
+ * Set the layouts defined from the json
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
-jp.layouts.prototype.renderJson = function(jsonTitle, jsonData) {
+jp.layouts.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
       layoutContent = util.findJsonData([jsonTitle, 'layoutContent'], jsonData);
@@ -476,11 +545,26 @@ jp.layouts.prototype.renderJson = function(jsonTitle, jsonData) {
 
 
 /*
+ * Set the layouts defined from the json
+ * @param {string} jsonTitle the data object's key name.
+ * @param {Object} jsonData the data object
+*/
+jp.layouts.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
+  var util = new jp.utility(),
+      style = util.findJsonData([jsonTitle, 'style'], jsonData);
+      styleContent = util.findJsonData([jsonTitle, 'styleContent'], jsonData);
+
+  this.setStyle(style);
+  this.setStyleContent(styleContent);
+};
+
+
+/*
  * Gets a dust layout based on a path and renders it once loaded.
  * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
 */
-jp.layouts.prototype.load = function(name, path) {
+jp.layouts.prototype.loadLayout = function(name, path) {
   var compiled,
       success = function(data) {
         compiled = dust.compile(data, name);
@@ -498,10 +582,52 @@ jp.layouts.prototype.load = function(name, path) {
  * @param {string} name the layout name.
  * @param {Element} parent the parent element to load the template into.
 */
-jp.layouts.prototype.render = function(name, parent) {
+jp.layouts.prototype.renderLayout = function(name, parent) {
   var data = jp.engine.getJsonData(),
       layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
+      callback = function(error, info) {
+        if (error) {
+          jp.error(jp.errorCodes['dustError'], error);
+          return;
+        }
+      $(parent).append(info);
+    };
+  if (!jsonData) {
+    jp.error(jp.errorCodes['dustMarkup']);
+  } else {
+    dust.render(name, jsonData, callback);
+  }
+};
+
+
+/*
+ * Gets a dust layout based on a path and renders it once loaded.
+ * @param {string} name the name of the layout to load.
+ * @param {string} path the uri of the layout to load.
+*/
+jp.layouts.prototype.loadStyle = function(name, path) {
+  var compiled,
+      success = function(data) {
+        compiled = dust.compile(data, name);
+        dust.loadSource(compiled);
+        $(this).trigger(jp.events.styleLoad);
+      }.bind(this);
+  $.get(path, success).fail(function() {
+    jp.error(jp.errorCodes['styleMissing']);
+  });
+}
+
+
+/*
+ * Renders a dust layout to the dom
+ * @param {string} name the layout name.
+ * @param {Element} parent the parent element to load the template into.
+*/
+jp.layouts.prototype.renderStyle = function(name, parent) {
+  var data = jp.engine.getJsonData(),
+      styleContent = this.getStyleContent(),
+      jsonData = data[styleContent],
       callback = function(error, info) {
         if (error) {
           jp.error(jp.errorCodes['dustError'], error);
