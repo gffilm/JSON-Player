@@ -113,7 +113,8 @@ jp.ErrorCodes = {
   'dustError': {'code': 'dust-001', 'detail': 'Error parsing dust file'},
   'dustMarkup': {'code': 'dust-002', 'detail': 'Dust markup missing'},
   'layoutMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
-  'layoutContentMissing': {'code': 'dust-004', 'detail': 'Dust layout content missing'}
+  'layoutMissingFromConfig': {'code': 'dust-004', 'detail': 'Dust layout missing from config'},
+  'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'}
 };
 
 
@@ -317,7 +318,7 @@ jp.engine.prototype.activate = function() {
     $(layout).bind(jp.events.layoutLoad, eventHandler);
     layout.load('assets/global/layouts/' + this.getLayout() + '.html');
   } else {
-    cpda.error(jp.ErrorCodes['layoutMissing']);
+    jp.error(jp.ErrorCodes['layoutMissingFromConfig']);
   }
 };
 
@@ -481,12 +482,14 @@ jp.layouts = function() {};
 jp.layouts.prototype.load = function(path) {
   var compiled,
       name = 'myLayout',
-      callback = function(data) {
+      success = function(data) {
         compiled = dust.compile(data, name);
         dust.loadSource(compiled);
         $(this).trigger(jp.events.layoutLoad);
       }.bind(this);
-  $.get(path, callback);
+  $.get(path, success).fail(function() {
+    jp.error(jp.ErrorCodes['layoutMissing']);
+  });
 }
 
 
@@ -512,11 +515,3 @@ jp.layouts.prototype.render = function(name, parent) {
     dust.render(name, jsonData, callback);
   }
 };
-
-
-
-
-
-
-
-
