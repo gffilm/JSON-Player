@@ -300,26 +300,27 @@ jp.engine.prototype.handleJSONLoad = function(data) {
   $.extend(this.jsonData_, data);
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
-    this.loadLayouts();
+    this.loadLayouts('loader');
   }
 };
 
 
 /*
- * Loads the layout
+ * Loads the layout for a specific model
+ * @param {string} modelName the json key.
 */
-jp.engine.prototype.loadLayouts = function() {
+jp.engine.prototype.loadLayouts = function(modelName) {
   var layout = new jp.layouts, eventHandler;
 
   eventHandler = function(evt) {
-    layout.render('myLayout', 'body');
+    layout.render(modelName, 'body');
   }.bind(this);
 
-  layout.renderJson('loader', this.getJsonData());
+  layout.renderJson(modelName, this.getJsonData());
   // Load the layouts
   if (layout.getLayout()) {
     $(layout).bind(jp.events.layoutLoad, eventHandler);
-    layout.load('assets/global/layouts/' + layout.getLayout() + '.html');
+    layout.load(modelName, 'assets/global/layouts/' + layout.getLayout() + '.html');
   } else {
     jp.error(jp.errorCodes['layoutMissingFromConfig']);
   }
@@ -332,22 +333,6 @@ jp.engine.prototype.loadLayouts = function() {
 */
 jp.engine.prototype.getJsonData = function() {
   return this.jsonData_;
-};
-
-
-/*
- * Welcome message as the course loads
- * @param {string} jsonTitle the data object's key name.
-*/
-jp.engine.prototype.renderJson = function(jsonTitle) {
-  var div,
-      util = new jp.utility(),
-      jsonData = this.getJsonData();
-      layout = util.findJsonData(['loader', 'layout'], jsonData);
-      layoutContent = util.findJsonData(['loader', 'layoutContent'], jsonData);
-
-  this.setLayout(layout);
-  this.setLayoutContent(layoutContent);
 };
 
 
@@ -424,7 +409,20 @@ jp.utility.prototype.findJsonData = function(needles, haystack) {
 /*
  * The Layouts class
 */
-jp.layouts = function() {};
+jp.layouts = function() {
+
+ /*
+  * The layout name
+  * @type {string}
+ */
+  this.layout_;
+
+ /*
+  * The layout content
+  * @type {string}
+ */
+  this.layoutContent_;
+};
 
 
 
@@ -463,14 +461,14 @@ jp.layouts.prototype.getLayoutContent = function() {
 };
 
 /*
- * Welcome message as the course loads
+ * Set
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
 jp.layouts.prototype.renderJson = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
-      layout = util.findJsonData(['loader', 'layout'], jsonData);
-      layoutContent = util.findJsonData(['loader', 'layoutContent'], jsonData);
+      layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
+      layoutContent = util.findJsonData([jsonTitle, 'layoutContent'], jsonData);
 
   this.setLayout(layout);
   this.setLayoutContent(layoutContent);
@@ -479,11 +477,11 @@ jp.layouts.prototype.renderJson = function(jsonTitle, jsonData) {
 
 /*
  * Gets a dust layout based on a path and renders it once loaded.
+ * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
 */
-jp.layouts.prototype.load = function(path) {
+jp.layouts.prototype.load = function(name, path) {
   var compiled,
-      name = 'myLayout',
       success = function(data) {
         compiled = dust.compile(data, name);
         dust.loadSource(compiled);
