@@ -82,7 +82,7 @@ jp.bind = function(fn, selfObj, var_args) {
 
 /*
  * Logs an error
- * @param {jp.ErrorCodes} error the error object.
+ * @param {jp.errorCodes} error the error object.
  * @param {string=} optInfo optional error information.
 */
 jp.error = function(error, optInfo) {
@@ -107,7 +107,7 @@ jp.log = function(name, value) {
 /*
  * The Error objects wih a code and detail
  */
-jp.ErrorCodes = {
+jp.errorCodes = {
   'libraryLoad': {'code': 'loader-001', 'detail': 'Error loading libraries'},
   'jsonLoad': {'code': 'loader-002', 'detail': 'Error loading json files'},
   'dustError': {'code': 'dust-001', 'detail': 'Error parsing dust file'},
@@ -211,7 +211,7 @@ jp.engine.prototype.init = function() {
   if (this.verifyAPIs()) {
     this.loadJSON(paths, jp.bind(this.handleJSONLoad, this));
   } else {
-    jp.error(jp.ErrorCodes['libraryLoad']);
+    jp.error(jp.errorCodes['libraryLoad']);
   }
 };
 
@@ -282,7 +282,7 @@ jp.engine.prototype.loadJSON = function(paths, callback) {
     this.loadJSON(paths, callback);
   }.bind(this)).fail(function(data, response) {
     // load failure handler
-    jp.error(jp.ErrorCodes['jsonLoad'], path + ' ' + response);
+    jp.error(jp.errorCodes['jsonLoad'], path + ' ' + response);
     this.loadJSON(paths, callback);
     callback({});
   }.bind(this));
@@ -300,44 +300,29 @@ jp.engine.prototype.handleJSONLoad = function(data) {
   $.extend(this.jsonData_, data);
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
-    this.activate();
+    this.loadLayouts();
   }
 };
 
 
-jp.engine.prototype.activate = function() {
+/*
+ * Loads the layout
+*/
+jp.engine.prototype.loadLayouts = function() {
   var layout = new jp.layouts, eventHandler;
 
   eventHandler = function(evt) {
     layout.render('myLayout', 'body');
   }.bind(this);
 
-  this.welcome();
+  layout.renderJson('loader', this.getJsonData());
   // Load the layouts
-  if (this.getLayout()) {
+  if (layout.getLayout()) {
     $(layout).bind(jp.events.layoutLoad, eventHandler);
-    layout.load('assets/global/layouts/' + this.getLayout() + '.html');
+    layout.load('assets/global/layouts/' + layout.getLayout() + '.html');
   } else {
-    jp.error(jp.ErrorCodes['layoutMissingFromConfig']);
+    jp.error(jp.errorCodes['layoutMissingFromConfig']);
   }
-};
-
-
-/*
- * Sets the layout
- * @param {string} layout the layout name.
-*/
-jp.engine.prototype.setLayout = function(layout) {
-  this.layout_ = layout;
-};
-
-
-/*
- * Gets the layout
- * @return {string} the layout name.
-*/
-jp.engine.prototype.getLayout = function() {
-  return this.layout_;
 };
 
 
@@ -351,52 +336,18 @@ jp.engine.prototype.getJsonData = function() {
 
 
 /*
- * Sets the layout content
- * @param {string} layoutContent the layout name.
-*/
-jp.engine.prototype.setLayoutContent = function(layoutContent) {
-  this.layoutContent_ = layoutContent;
-};
-
-
-/*
- * Gets the layout content
- * @return {string} the layout name.
-*/
-jp.engine.prototype.getLayoutContent = function() {
-  return this.layoutContent_;
-};
-
-
-/*
  * Welcome message as the course loads
+ * @param {string} jsonTitle the data object's key name.
 */
-jp.engine.prototype.welcome = function() {
+jp.engine.prototype.renderJson = function(jsonTitle) {
   var div,
       util = new jp.utility(),
       jsonData = this.getJsonData();
-      title = util.findJsonData(['course', 'title'], jsonData),
-      className = util.findJsonData(['loader', 'class'], jsonData),
-      id = util.findJsonData(['loader', 'id'], jsonData),
       layout = util.findJsonData(['loader', 'layout'], jsonData);
       layoutContent = util.findJsonData(['loader', 'layoutContent'], jsonData);
 
   this.setLayout(layout);
   this.setLayoutContent(layoutContent);
-  div = new jp.ui().createElement('div', id, className);
-  $('body').append(div);
-  document.title = title;
-  jp.welcomeDiv = div;
-};
-
-
-/*
- * Welcome message as the course loads
-*/
-jp.engine.prototype.removeWelcome = function() {
-  if (jp.welcomeDiv) {
-    jp.welcomeDiv.remove();
-  }
 };
 
 
@@ -404,6 +355,7 @@ jp.engine.prototype.removeWelcome = function() {
  * The UI class
 */
 jp.ui = function() {};
+
 
 /*
  * Sets the innerHTML of an element
@@ -475,6 +427,56 @@ jp.utility.prototype.findJsonData = function(needles, haystack) {
 jp.layouts = function() {};
 
 
+
+/*
+ * Sets the layout
+ * @param {string} layout the layout name.
+*/
+jp.layouts.prototype.setLayout = function(layout) {
+  this.layout_ = layout;
+};
+
+
+/*
+ * Gets the layout
+ * @return {string} the layout name.
+*/
+jp.layouts.prototype.getLayout = function() {
+  return this.layout_;
+};
+
+/*
+ * Sets the layout content
+ * @param {string} layoutContent the layout name.
+*/
+jp.layouts.prototype.setLayoutContent = function(layoutContent) {
+  this.layoutContent_ = layoutContent;
+};
+
+
+/*
+ * Gets the layout content
+ * @return {string} the layout name.
+*/
+jp.layouts.prototype.getLayoutContent = function() {
+  return this.layoutContent_;
+};
+
+/*
+ * Welcome message as the course loads
+ * @param {string} jsonTitle the data object's key name.
+ * @param {Object} jsonData the data object
+*/
+jp.layouts.prototype.renderJson = function(jsonTitle, jsonData) {
+  var util = new jp.utility(),
+      layout = util.findJsonData(['loader', 'layout'], jsonData);
+      layoutContent = util.findJsonData(['loader', 'layoutContent'], jsonData);
+
+  this.setLayout(layout);
+  this.setLayoutContent(layoutContent);
+};
+
+
 /*
  * Gets a dust layout based on a path and renders it once loaded.
  * @param {string} path the uri of the layout to load.
@@ -488,7 +490,7 @@ jp.layouts.prototype.load = function(path) {
         $(this).trigger(jp.events.layoutLoad);
       }.bind(this);
   $.get(path, success).fail(function() {
-    jp.error(jp.ErrorCodes['layoutMissing']);
+    jp.error(jp.errorCodes['layoutMissing']);
   });
 }
 
@@ -500,17 +502,17 @@ jp.layouts.prototype.load = function(path) {
 */
 jp.layouts.prototype.render = function(name, parent) {
   var data = jp.engine.getJsonData(),
-      layoutContent = jp.engine.getLayoutContent(),
+      layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
       callback = function(error, info) {
         if (error) {
-          jp.error(jp.ErrorCodes['dustError'], error);
+          jp.error(jp.errorCodes['dustError'], error);
           return;
         }
       $(parent).append(info);
     };
   if (!jsonData) {
-    jp.error(jp.ErrorCodes['dustMarkup']);
+    jp.error(jp.errorCodes['dustMarkup']);
   } else {
     dust.render(name, jsonData, callback);
   }
