@@ -184,18 +184,18 @@ jp.events = {
 */
  jp.startup = function() {
   jp.engine = new jp.engine();
-  jp.engine.load();
+  jp.engine.load(jp.bind(jp.engine.init, jp.engine));
 };
 
 /*
  * Loads libraries using yepNope
 */
-jp.engine.prototype.load = function() {
+jp.engine.prototype.load = function(callback) {
   yepnope({
     load: this.libraries_,
     complete: function() {
-      this.init();
-    }.bind(this)
+      callback();
+    }
   });
 };
 
