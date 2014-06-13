@@ -383,7 +383,7 @@ jp.engine.prototype.activate = function() {
   this.loadLayouts();
   jp.events.listen(this.style_, jp.events.styleLoad, this.renderStyle, this);
   jp.events.listen(this.layout_, jp.events.layoutLoad, this.renderLayout, this);
-  jp.events.listen(this.layout_, jp.events.elementRendered, this.renderDom, this);
+  jp.events.listen(this.layout_, jp.events.elementRendered, this.setButtonEvents, this);
 };
 
 
@@ -391,7 +391,6 @@ jp.engine.prototype.activate = function() {
  * Loads the layout for a specific model
 */
 jp.engine.prototype.loadStyles = function() {
-  console.log('loadStyles', this.modelName_);
   this.style_.renderJsonStyles(this.modelName_, this.getJsonData());
   // Load the layouts
   if (this.style_.getStyle()) {
@@ -406,7 +405,6 @@ jp.engine.prototype.loadStyles = function() {
  * Loads the layout for a specific model
 */
 jp.engine.prototype.loadLayouts = function() {
-  console.log('loadLayouts', this.modelName_);
   this.layout_.renderJsonLayouts(this.modelName_, this.getJsonData());
   // Load the layouts
   if (this.layout_.getLayout()) {
@@ -422,6 +420,33 @@ jp.engine.prototype.loadLayouts = function() {
 */
 jp.engine.prototype.renderLayout = function() {
   this.layout_.renderLayout(this.modelName_);
+};
+
+
+/*
+ * Sets button events
+*/
+jp.engine.prototype.setButtonEvents = function() {
+  var buttons = this.layout_.renderedElement_.getElementsByClassName('button'),
+      totalButtons = buttons.length,
+      button,
+      i;
+
+  for (i = 0; i < totalButtons; i++) {
+    button = buttons[i];
+    this.addEvent(button);
+  }
+
+  this.layout_.renderDom();
+};
+
+/*
+ * Adds an event for an element
+*/
+jp.engine.prototype.addEvent = function(element) {
+  $(element).click(function(evt) {
+    console.log(evt.currentTarget);
+  });
 };
 
 
