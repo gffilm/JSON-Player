@@ -1,5 +1,15 @@
-<div id="{id}" class="{class}">
-  {#buttons}
-     <div id="{id}" class="{class}">{html}</div>
-  {/buttons}
+<div class="player">
+	<div class="canvas"></div>
+	<div class="control-bar">
+	<div class="progress"></div>
+	<div class="course-title">{courseTitle}</div>
+	<div class="control-bar-buttons">
+	  {#buttons}
+		{?button}<div id="{id}" class="{class}" role="button">{html}</div>
+			{:else}
+			<div id="{id}" class="{class}">{html}</div>
+		{/button}
+  	  {/buttons}
+	</div>
+</div>
 </div>

@@ -152,14 +152,40 @@ jp.errorCodes = {
   'layoutMissingFromConfig': {'code': 'dust-004', 'detail': 'Dust layout missing from config'},
   'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'},
   'styleMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
-  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'},
+  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'}
 };
 
-
+/*
+ * All event types
+*/
 jp.events = {
   layoutLoad: 'layoutLoad',
   styleLoad: 'styleLoad',
-  styleLoaded: 'styleLoaded'
+  styleLoaded: 'styleLoaded',
+  elementRendered: 'elementRendered'
+};
+
+/*
+ * Listens for an event, using anthropomorphic metaphors to descripe the listener
+ * @param {string} ear the listening device.
+ * @param {string} sound the specific sound the ear is listening for.
+ * @param {string} reaction what to do once the event has been heard.
+ * @param {string} self the instance that is listening/
+ * @param {*=} backpack any parameters to carry with it to handle the reaction.
+*/
+jp.events.listen = function(ear, sound, reaction, self, backpack = null) {
+  $(ear).bind(sound, jp.bind(reaction, self, backpack));
+};
+
+/*
+ * Calls out an event, using anthropomorphic metaphors to descripe the talker.
+ * @param {string} self the instance that is talking.
+ * @param {string} voice the specific sound the voice is saying.
+ 
+ * @param {*=} backpack any parameters to carry with it to handle the reaction.
+*/
+jp.events.talk = function(self, voice) {
+  $(self).trigger(voice);
 };
 
 
@@ -350,26 +376,41 @@ jp.engine.prototype.handleJSONLoad = function(data) {
 */
 jp.engine.prototype.activate = function() {
   document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
-  this.loadStyles('player');
+  this.layout_ = new jp.layouts;
+  this.style_ = new jp.layouts;
+  this.modelName_ = 'player';
+  this.loadStyles();
+  this.loadLayouts();
+  jp.events.listen(this.style_, jp.events.styleLoad, this.renderStyle, this);
+  jp.events.listen(this.layout_, jp.events.layoutLoad, this.renderLayout, this);
+  jp.events.listen(this.layout_, jp.events.elementRendered, this.renderDom, this);
 };
 
 
 /*
  * Loads the layout for a specific model
- * @param {string} modelName the json key.
 */
-jp.engine.prototype.loadLayouts = function(modelName) {
-  var layout = new jp.layouts, eventHandler;
-
-  eventHandler = function(evt) {
-    layout.renderLayout(modelName, 'body');
-  }.bind(this);
-
-  layout.renderJsonLayouts(modelName, this.getJsonData());
+jp.engine.prototype.loadStyles = function() {
+  console.log('loadStyles', this.modelName_);
+  this.style_.renderJsonStyles(this.modelName_, this.getJsonData());
   // Load the layouts
-  if (layout.getLayout()) {
-    $(layout).bind(jp.events.layoutLoad, eventHandler);
-    layout.loadLayout(modelName, 'assets/global/layouts/' + layout.getLayout() + '.html');
+  if (this.style_.getStyle()) {
+    this.style_.loadStyle(this.modelName_, 'assets/global/styles/' + this.style_.getStyle() + '.css');
+  } else {
+    jp.error(jp.errorCodes['styleMissingFromConfig']);
+  }
+};
+
+
+/*
+ * Loads the layout for a specific model
+*/
+jp.engine.prototype.loadLayouts = function() {
+  console.log('loadLayouts', this.modelName_);
+  this.layout_.renderJsonLayouts(this.modelName_, this.getJsonData());
+  // Load the layouts
+  if (this.layout_.getLayout()) {
+    this.layout_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.layout_.getLayout() + '.html');
   } else {
     jp.error(jp.errorCodes['layoutMissingFromConfig']);
   }
@@ -377,30 +418,34 @@ jp.engine.prototype.loadLayouts = function(modelName) {
 
 
 /*
- * Loads the layout for a specific model
- * @param {string} modelName the json key.
+ * Renders the layout
 */
-jp.engine.prototype.loadStyles = function(modelName) {
-  var layout = new jp.layouts, eventHandler;
-
-  renderStyle = function(evt) {
-    layout.renderStyle(modelName, 'body');
-  }.bind(this);
-
-  loadLayouts = function(evt) {
-    this.loadLayouts(modelName);
-  }.bind(this);
+jp.engine.prototype.renderLayout = function() {
+  this.layout_.renderLayout(this.modelName_);
+};
 
 
-  layout.renderJsonStyles(modelName, this.getJsonData());
-  // Load the layouts
-  if (layout.getStyle()) {
-    $(layout).bind(jp.events.styleLoad, renderStyle);
-    $(layout).bind(jp.events.styleLoaded, loadLayouts);
-    layout.loadStyle(modelName, 'assets/global/styles/' + layout.getStyle() + '.css');
-  } else {
-    jp.error(jp.errorCodes['styleMissingFromConfig']);
-  }
+/*
+ * Renders the dom
+*/
+jp.engine.prototype.renderDom = function() {
+  this.layout_.renderDom();
+};
+
+
+/*
+ * Loads the style
+*/
+jp.engine.prototype.loadStyle = function() {
+  this.style_.loadStyle(this.modelName_);
+};
+
+
+/*
+ * Renders the style
+*/
+jp.engine.prototype.renderStyle = function() {
+  this.style_.renderStyle(this.modelName_);
 };
 
 
@@ -575,7 +620,7 @@ jp.layouts.prototype.loadLayout = function(name, path) {
       success = function(data) {
         compiled = dust.compile(data, name);
         dust.loadSource(compiled);
-        $(this).trigger(jp.events.layoutLoad);
+        jp.events.talk(this, jp.events.layoutLoad);
       }.bind(this);
   $.get(path, success).fail(function() {
     jp.error(jp.errorCodes['layoutMissing']);
@@ -584,25 +629,64 @@ jp.layouts.prototype.loadLayout = function(name, path) {
 
 
 /*
- * Renders a dust layout to the dom
+ * Renders a dust layout and stores the element
  * @param {string} name the layout name.
- * @param {Element} parent the parent element to load the template into.
 */
-jp.layouts.prototype.renderLayout = function(name, parent) {
+jp.layouts.prototype.renderLayout = function(name) {
   var data = jp.engine.getJsonData(),
       layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
-      callback = function(error, info) {
-        if (error) {
-          jp.error(jp.errorCodes['dustError'], error);
-          return;
-        }
-      $(parent).append(info);
-    };
+      element;
+
+    callback = function(error, html) {
+      if (error) {
+        jp.error(jp.errorCodes['dustError'], error);
+        return;
+      }
+      element = this.convertLayoutToNode(html);
+      if (element) {
+        this.renderedElement_ = element;
+        jp.events.talk(this, jp.events.elementRendered);
+      }
+    }.bind(this);
+
   if (!jsonData) {
     jp.error(jp.errorCodes['dustMarkup']);
   } else {
     dust.render(name, jsonData, callback);
+  }
+};
+
+
+/*
+ * Renders the created element to the dom
+ * @param {string} name the layout name.
+*/
+jp.layouts.prototype.renderDom = function() {
+  $('body').append(this.renderedElement_);
+};
+
+
+/*
+ * Converts a dust string into a node.
+ * @param {string} htmlString the html in string format.
+ * @return {Node} the node created.
+*/
+jp.layouts.prototype.convertLayoutToNode = function(htmlString) {
+  var div = document.createElement('div'),
+      node;
+
+  div.innerHTML = "<br>" + htmlString;
+  div.removeChild(div.firstChild)
+
+  if (div.childNodes.length == 1) {
+    return div.removeChild(div.firstChild)
+  } else {
+    element = document.createDocumentFragment();
+    while (div.firstChild) {
+      element.appendChild(div.firstChild)
+    }
+    return element
   }
 };
 
@@ -617,7 +701,7 @@ jp.layouts.prototype.loadStyle = function(name, path) {
       success = function(data) {
         compiled = dust.compile(data, name);
         dust.loadSource(compiled);
-        $(this).trigger(jp.events.styleLoad);
+        jp.events.talk(this, jp.events.styleLoad);
       }.bind(this);
   $.get(path, success).fail(function() {
     jp.error(jp.errorCodes['styleMissing']);
@@ -642,7 +726,7 @@ jp.layouts.prototype.renderStyle = function(name, parent) {
         this.addCssText(info);
     }.bind(this);
   if (!jsonData) {
-    jp.error(jp.errorCodes['dustMarkup']);
+    jp.error(jp.errorCodes['dustMarkup'], name);
   } else {
     dust.render(name, jsonData, callback);
   }
@@ -684,5 +768,5 @@ jp.layouts.prototype.addCssText = function(cssText) {
     // Most browsers
     cssNode.appendChild(cssTextNode);
   }
-  $(this).trigger(jp.events.styleLoaded);
+  jp.events.talk(this, jp.events.styleLoaded);
 };

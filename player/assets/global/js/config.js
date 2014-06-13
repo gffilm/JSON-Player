@@ -10,7 +10,7 @@
   "player": {
     "layout": "player",
     "style": "player",
-    "styleContent": "playerContent",
+    "styleContent": "playerCss",
     "layoutContent": "playerContent"
   }
 }

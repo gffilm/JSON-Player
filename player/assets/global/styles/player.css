@@ -1,4 +1,60 @@
-.button {
-	display: inline-block;
-	padding: 5px;
+
+body {
+    font-family: arial,sans-serif;
+    font-size: 100%;
+    margin: 0;
+}
+
+.player {
+    height: 477px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 788px;
+}
+
+.canvas {
+    background-color: #fff;
+    height: 439px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    width: 788px;
+    border: 1px solid red;
+}
+
+
+.progress {
+    height: 5px;
+    width: 100%;
+    background-color: {progressBarColor};
+}
+
+.control-bar {
+    bottom: 0;
+    position: absolute;
+}
+
+.control-bar .button {
+    display: inline-block;
+    font-weight: bold;
+    line-height: 12px;
+    text-align: center;
+    color: {buttonColor};
+    background-color: {buttonBgColor};
+    padding: 10px 25px;
+    cursor: pointer;
+}
+
+.control-bar .title {
+    display: inline-block;
+    font-weight: bold;
+    line-height: 12px;
+    text-align: center;
+    padding: 10px 25px;
+}
+
+.control-bar .button:hover {
+    color: {buttonHoverColor};
+    background-color: {buttonBgHoverColor};
 }
