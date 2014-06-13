@@ -158,7 +158,8 @@ jp.errorCodes = {
 
 jp.events = {
   layoutLoad: 'layoutLoad',
-  styleLoad: 'styleLoad'
+  styleLoad: 'styleLoad',
+  styleLoaded: 'styleLoaded'
 };
 
 
@@ -349,7 +350,6 @@ jp.engine.prototype.handleJSONLoad = function(data) {
 */
 jp.engine.prototype.activate = function() {
   document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
-  this.loadLayouts('player');
   this.loadStyles('player');
 };
 
@@ -383,14 +383,20 @@ jp.engine.prototype.loadLayouts = function(modelName) {
 jp.engine.prototype.loadStyles = function(modelName) {
   var layout = new jp.layouts, eventHandler;
 
-  eventHandler = function(evt) {
+  renderStyle = function(evt) {
     layout.renderStyle(modelName, 'body');
   }.bind(this);
+
+  loadLayouts = function(evt) {
+    this.loadLayouts(modelName);
+  }.bind(this);
+
 
   layout.renderJsonStyles(modelName, this.getJsonData());
   // Load the layouts
   if (layout.getStyle()) {
-    $(layout).bind(jp.events.styleLoad, eventHandler);
+    $(layout).bind(jp.events.styleLoad, renderStyle);
+    $(layout).bind(jp.events.styleLoaded, loadLayouts);
     layout.loadStyle(modelName, 'assets/global/styles/' + layout.getStyle() + '.css');
   } else {
     jp.error(jp.errorCodes['styleMissingFromConfig']);
@@ -633,11 +639,50 @@ jp.layouts.prototype.renderStyle = function(name, parent) {
           jp.error(jp.errorCodes['dustError'], error);
           return;
         }
-      $(parent).append(info);
-    };
+        this.addCssText(info);
+    }.bind(this);
   if (!jsonData) {
     jp.error(jp.errorCodes['dustMarkup']);
   } else {
     dust.render(name, jsonData, callback);
   }
+};
+
+
+/**
+ * Writes a CSS node used to add a style to.
+ * @return {Element} The cssNode to embed the styles to.
+ */
+jp.layouts.prototype.getCssNode = function() {
+  if (this.cssNode_) {
+    return this.cssNode_;
+  }
+
+  var cssNode = document.createElement('style'),
+      head = document.getElementsByTagName('head')[0];
+
+  cssNode.type = 'text/css';
+  head.appendChild(cssNode);
+  this.cssNode_ = cssNode;
+  return this.cssNode_;
+};
+
+
+
+/**
+ * Adds CSS text to the dom's <head>
+ * @param {string} cssText CSS to add to the end of the document.
+ */
+jp.layouts.prototype.addCssText = function(cssText) {
+  var cssNode = this.getCssNode(),
+      cssTextNode = document.createTextNode(cssText);
+
+  if (cssNode.styleSheet) {
+    // IE implementation
+    cssNode.styleSheet.cssText += cssText;
+  } else {
+    // Most browsers
+    cssNode.appendChild(cssTextNode);
+  }
+  $(this).trigger(jp.events.styleLoaded);
 };
