@@ -17,13 +17,15 @@
     "id": "player",
     "class": "jp-player",
     "buttons":[
-        {"button": true, "id": "menu", "html":"home", "tabIndex": 1},
-        {"button": true, "id": "cc", "html":"transcript", "tabIndex": 2},
-        {"button": true, "id": "mute", "html":"mute", "tabIndex": 3},
-        {"button": false, "id": "title",  "class": "title", "html":"course title", "tabIndex": 4},
-        {"button": true, "id": "play", "html":"play", "tabIndex": 5},
-        {"button": true, "id": "pause", "html":"pause", "tabIndex": 6},
-        {"button": true, "id": "next", "html":"next", "tabIndex": 7}
+        {"button": false, "id": "skip-nav","class": "hidden", "html":"skip content", "tabIndex": 1},
+        {"button": true, "id": "menu", "html":"home", "tabIndex": 2},
+        {"button": true, "id": "cc", "html":"transcript", "tabIndex": 3},
+        {"button": true, "id": "mute", "html":"mute", "tabIndex": 4},
+        {"button": false, "id": "title",  "class": "title", "html":"course title", "tabIndex": 5},
+        {"button": true, "id": "play", "html":"play", "tabIndex": 6},
+        {"button": true, "id": "pause", "html":"pause", "tabIndex": 7},
+        {"button": true, "id": "next", "html":"next", "tabIndex": 8},
+        {"button": false, "id": "skip-target","class": "hidden", "html":"skip target", "tabIndex": 9}
       ]
   },
   "playerCss": {
