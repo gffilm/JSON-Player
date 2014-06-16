@@ -8,7 +8,7 @@ var deps = {};
  * Define if production mode
  * @define Production mode
  */
-deps.PRODUCTION_MODE = false;
+deps.PRODUCTION_MODE = true;
 
 
 /*
