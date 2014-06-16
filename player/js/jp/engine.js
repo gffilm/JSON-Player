@@ -36,7 +36,6 @@
 */
  jp.startup = function() {
   // Remove the startup script
-  document.body.children[0].remove();
   jp.engineInstance = new jp.engine();
   jp.engineInstance.init();
 };
@@ -46,6 +45,8 @@
  * @public
 */
  jp.restart = function() {
+  var bodyChild = document.body.children[0];
+  jp.ui.removeElement(bodyChild);
   jp.engineInstance = null;
    jp.startup();
  };

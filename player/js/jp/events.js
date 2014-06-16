@@ -19,7 +19,7 @@ jp.events = {
  * @param {string} self the instance that is listening/
  * @param {*=} backpack any parameters to carry with it to handle the reaction.
 */
-jp.events.listen = function(ear, sound, reaction, self, backpack = null) {
+jp.events.listen = function(ear, sound, reaction, self, backpack) {
   $(ear).bind(sound, jp.bind(reaction, self, backpack));
 };
 

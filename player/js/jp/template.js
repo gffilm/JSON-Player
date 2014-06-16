@@ -227,6 +227,7 @@ jp.template.prototype.renderStyle = function(name, parent) {
   var data = jp.engineInstance.getJsonData(),
       styleContent = this.getStyleContent(),
       jsonData = data[styleContent],
+      dustHelpers = this.getDustHelpers();
       callback = function(error, info) {
         if (error) {
           jp.error(jp.errorCodes['dustError'], error);
@@ -237,6 +238,7 @@ jp.template.prototype.renderStyle = function(name, parent) {
   if (!jsonData) {
     jp.error(jp.errorCodes['dustMarkup'], name);
   } else {
+    $.extend(jsonData, dustHelpers);
     dust.render(name, jsonData, callback);
   }
 };
@@ -280,3 +282,14 @@ jp.template.prototype.addCssText = function(cssText) {
   }
   jp.events.talk(this, jp.events.styleLoaded);
 };
+
+
+/*
+ * Gets the dust helpers
+ * @return {Object[Function]} the dust helpers functions
+*/
+jp.template.prototype.getDustHelpers = function() {
+  var helpers = new jp.dustHelpers();
+
+  return helpers;
+}

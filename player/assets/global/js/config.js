@@ -26,17 +26,18 @@
         {"button": false, "id": "skip-target","class": "hidden", "html":"skip target", "tabIndex": 9}
       ]
   },
+  "playerModel": {
+    "buttonMap":[
+        {"id": "reboot", "function": "restart"}
+      ]
+  },
   "playerCss": {
     "buttonColor":"#5f5f5f",
     "buttonBgColor":"#000",
     "buttonHoverColor":"#ccc",
     "buttonBgHoverColor":"#222",
     "progressBarColor":"#a58306",
-    "focus":"3px solid #d85a1a"
-  },
-  "playerModel": {
-    "buttonMap":[
-        {"id": "reboot", "function": "restart"}
-      ]
+    "focus":"3px solid #d85a1a",
+    "buttonBorder": "2px solid #009496"
   }
 }

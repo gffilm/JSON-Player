@@ -30,3 +30,17 @@ jp.ui.createElement = function(type, id, className, innerHTML) {
     'class': className
   });
 }
+
+
+
+/*
+ * Rempves an element from the DOM
+ * @param {Element} the element to remove
+*/
+jp.ui.removeElement = function(element) {
+  try {
+    element.remove();
+  } catch(e) {
+    element.parentNode.removeChild(element);
+  }
+};

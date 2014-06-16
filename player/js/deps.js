@@ -29,22 +29,23 @@ deps.loadScripts = function() {
     'js/lib/min/modernizr.min.js',
     'js/lib/min/jquery-1.11.1.min.js',
     'js/lib/min/dust-full.min.js',
-    'js/cpda/compiled.js'
+    'js/compiled.js'
     ];
   } else {
     scripts = [
     'js/lib/modernizr.js',
     'js/lib/jquery-1.11.1.js',
     'js/lib/dust-full.js',
-    'js/cpda/jp/base.js',
-    'js/cpda/jp/engine.js',
-    'js/cpda/jp/page.js',
-    'js/cpda/jp/player.js',
-    'js/cpda/jp/logger.js',
-    'js/cpda/jp/events.js',
-    'js/cpda/jp/template.js',
-    'js/cpda/jp/ui.js',
-    'js/cpda/jp/utility.js'
+    'js/jp/base.js',
+    'js/jp/engine.js',
+    'js/jp/page.js',
+    'js/jp/player.js',
+    'js/jp/logger.js',
+    'js/jp/events.js',
+    'js/jp/template.js',
+    'js/jp/dustHelpers.js',
+    'js/jp/ui.js',
+    'js/jp/utility.js'
     ];
     apis.push('jp.engine');
     apis.push('jp.page');
@@ -52,6 +53,7 @@ deps.loadScripts = function() {
     apis.push('jp.logger');
     apis.push('jp.events');
     apis.push('jp.template');
+    apis.push('jp.dustHelpers');
     apis.push('jp.ui');
     apis.push('jp.utility');
   }
