@@ -94,7 +94,10 @@ jp.page.prototype.activate = function() {
  * Sets button events
 */
 jp.page.prototype.setButtonEvents = function() {
-  var buttons = document.getElementsByClassName('button'),
+  if (typeof this.template_.renderedElement_.getElementsByClassName != 'function') {
+    return;
+  }
+  var buttons = this.template_.renderedElement_.getElementsByClassName('button'),
       totalButtons = buttons.length,
       button,
       i;
