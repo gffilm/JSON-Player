@@ -28,13 +28,15 @@ if (!window.console) {
  * @return {!Function} A partially-applied form of the function bind()
  * @private
  */
-jp.bindJs_ = function(fn, selfObj, var_args) {
-  var context = selfObj || jp.global;
+jp.bindJs = function(fn, selfObj, var_args) {
+  var context = selfObj || jp.global,
+      newArgs,
+      boundArgs;
   if (arguments.length > 2) {
-    var boundArgs = Array.prototype.slice.call(arguments, 2);
+    boundArgs = Array.prototype.slice.call(arguments, 2);
     return function() {
       // Prepend the bound arguments to the current arguments.
-      var newArgs = Array.prototype.slice.call(arguments);
+      newArgs = Array.prototype.slice.call(arguments);
       Array.prototype.unshift.apply(newArgs, boundArgs);
       return fn.apply(context, newArgs);
     };
@@ -55,7 +57,7 @@ jp.bindJs_ = function(fn, selfObj, var_args) {
  * @return {!Function} the function to bind
  * @private
  */
-jp.bindNative_ = function(fn, selfObj, var_args) {
+jp.bindNative = function(fn, selfObj, var_args) {
   return fn.call.apply(fn.bind, arguments);
 };
 
@@ -69,9 +71,9 @@ jp.bindNative_ = function(fn, selfObj, var_args) {
 jp.bind = function(fn, selfObj, var_args) {
   if (Function.prototype.bind &&
       Function.prototype.bind.toString().indexOf('native code') != -1) {
-    jp.bind = jp.bindNative_;
+    jp.bind = jp.bindNative;
   } else {
-    jp.bind = jp.bindJs_;
+    jp.bind = jp.bindJs;
   }
   return jp.bind.apply(null, arguments);
 };
@@ -202,30 +204,6 @@ jp.events.talk = function(self, voice) {
  */
   this.assetPathsLoaded_ = 0;
 
-
-  /*
- * The Required libraries dependent on production mode
- */
-  if (jp.PRODUCTION) {
-    this.libraries_ = [
-    'js/lib/min/modernizr.min.js',
-    'js/lib/min/jquery-1.11.1-min.js',
-    'js/lib/min/dust-full-0.3.0.min.js'
-    ];
-  } else {
-    this.libraries_ = [
-    'js/lib/modernizr.js',
-    'js/lib/jquery-1.11.1.js',
-    'js/lib/dust-full-0.3.0.js'
-    ];
-  }
-
-  /*
- * The APIs to verify
- */
-  this.libraryAPIs_ = ['Modernizr', 'jQuery', 'dust'];
-
-
   /*
  * Set the jsonData
  * @type {Object}
@@ -253,7 +231,7 @@ jp.events.talk = function(self, voice) {
   // Remove the startup script
   document.body.children[0].remove();
   jp.engineInstance = new jp.engine();
-  jp.engineInstance.load(jp.bind(jp.engineInstance.init, jp.engineInstance));
+  jp.engineInstance.init();
 };
 
 /*
@@ -263,19 +241,7 @@ jp.events.talk = function(self, voice) {
  jp.restart = function() {
   jp.engineInstance = null;
    jp.startup();
-};
-
-/*
- * Loads libraries using yepNope
-*/
-jp.engine.prototype.load = function(callback) {
-  yepnope({
-    load: this.libraries_,
-    complete: function() {
-      callback();
-    }
-  });
-};
+ };
 
 
 /*
@@ -285,12 +251,7 @@ jp.engine.prototype.init = function() {
   var paths = this.getAssetPaths();
   // set the total number of asset paths
   this.totalAssetPaths_ = paths.length;
-  // Verify the apis are set and then load the json files
-  if (this.verifyAPIs()) {
-    this.loadJSON(paths, jp.bind(this.handleJSONLoad, this));
-  } else {
-    jp.error(jp.errorCodes['libraryLoad']);
-  }
+  this.loadJSON(paths, jp.bind(this.handleJSONLoad, this));
 };
 
 
