@@ -21,13 +21,7 @@
  * The layout type
  * @type {string}
  */
-  this.layout_;
-
- /*
- * The layout type
- * @type {Object}
- */
-  this.layoutContent_;
+  this.template_;
  };
 
 /*
@@ -156,14 +150,13 @@ jp.engine.prototype.handleJSONLoad = function(data) {
 */
 jp.engine.prototype.activate = function() {
   document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
-  this.layout_ = new jp.layouts;
-  this.style_ = new jp.layouts;
+  this.template_ = new jp.template;
   this.modelName_ = 'player';
   this.loadStyles();
   this.loadLayouts();
-  jp.events.listen(this.style_, jp.events.styleLoad, this.renderStyle, this);
-  jp.events.listen(this.layout_, jp.events.layoutLoad, this.renderLayout, this);
-  jp.events.listen(this.layout_, jp.events.elementRendered, this.setButtonEvents, this);
+  jp.events.listen(this.template_, jp.events.styleLoad, this.renderStyle, this);
+  jp.events.listen(this.template_, jp.events.layoutLoad, this.renderLayout, this);
+  jp.events.listen(this.template_, jp.events.elementRendered, this.setButtonEvents, this);
 };
 
 
@@ -171,8 +164,8 @@ jp.engine.prototype.activate = function() {
  * Loads the layout for a specific model
 */
 jp.engine.prototype.loadStyles = function() {
-  this.style_.renderJsonStyles(this.modelName_, this.getJsonData());
-  var  styles = this.style_.getStyles(),
+  this.template_.renderJsonStyles(this.modelName_, this.getJsonData());
+  var  styles = this.template_.getStyles(),
       totalStyles = styles.length,
       i;
 
@@ -180,7 +173,7 @@ jp.engine.prototype.loadStyles = function() {
   // Load the layouts
   if (styles) {
     for (i = 0; i < totalStyles; i++) {
-      this.style_.loadStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
+      this.template_.loadStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
     }
   } else {
     jp.error(jp.errorCodes['styleMissingFromConfig']);
@@ -192,10 +185,10 @@ jp.engine.prototype.loadStyles = function() {
  * Loads the layout for a specific model
 */
 jp.engine.prototype.loadLayouts = function() {
-  this.layout_.renderJsonLayouts(this.modelName_, this.getJsonData());
+  this.template_.renderJsonLayouts(this.modelName_, this.getJsonData());
   // Load the layouts
-  if (this.layout_.getLayout()) {
-    this.layout_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.layout_.getLayout() + '.html');
+  if (this.template_.getLayout()) {
+    this.template_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.template_.getLayout() + '.html');
   } else {
     jp.error(jp.errorCodes['layoutMissingFromConfig']);
   }
@@ -206,7 +199,7 @@ jp.engine.prototype.loadLayouts = function() {
  * Renders the layout
 */
 jp.engine.prototype.renderLayout = function() {
-  this.layout_.renderLayout(this.modelName_);
+  this.template_.renderLayout(this.modelName_);
 };
 
 
@@ -214,7 +207,7 @@ jp.engine.prototype.renderLayout = function() {
  * Sets button events
 */
 jp.engine.prototype.setButtonEvents = function() {
-  var buttons = this.layout_.renderedElement_.getElementsByClassName('button'),
+  var buttons = this.template_.renderedElement_.getElementsByClassName('button'),
       totalButtons = buttons.length,
       button,
       i;
@@ -224,7 +217,7 @@ jp.engine.prototype.setButtonEvents = function() {
     this.onClickEvent(button);
   }
 
-  this.layout_.renderDom();
+  this.template_.renderDom();
 };
 
 /*
@@ -254,7 +247,7 @@ jp.engine.prototype.onClickEvent = function(element) {
  * Renders the dom
 */
 jp.engine.prototype.renderDom = function() {
-  this.layout_.renderDom();
+  this.template_.renderDom();
 };
 
 
@@ -262,7 +255,7 @@ jp.engine.prototype.renderDom = function() {
  * Loads the style
 */
 jp.engine.prototype.loadStyle = function() {
-  this.style_.loadStyle(this.modelName_);
+  this.template_.loadStyle(this.modelName_);
 };
 
 
@@ -270,7 +263,7 @@ jp.engine.prototype.loadStyle = function() {
  * Renders the style
 */
 jp.engine.prototype.renderStyle = function() {
-  this.style_.renderStyle(this.modelName_);
+  this.template_.renderStyle(this.modelName_);
 };
 
 

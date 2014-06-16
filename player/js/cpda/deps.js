@@ -39,12 +39,12 @@ deps.loadScripts = function() {
     'js/cpda/jp/base.js',
     'js/cpda/jp/engine.js',
     'js/cpda/jp/events.js',
-    'js/cpda/jp/layouts.js',
+    'js/cpda/jp/template.js',
     'js/cpda/jp/utility.js'
     ];
     apis.push('jp.engine');
     apis.push('jp.events');
-    apis.push('jp.layouts');
+    apis.push('jp.template');
     apis.push('jp.utility');
   }
 

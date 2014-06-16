@@ -1,8 +1,8 @@
 
 /*
- * The Layouts class
+ * The Template class
 */
-jp.layouts = function() {
+jp.template = function() {
 
  /*
   * The layout name
@@ -23,7 +23,7 @@ jp.layouts = function() {
  * Sets the layout
  * @param {string} layout the layout name.
 */
-jp.layouts.prototype.setLayout = function(layout) {
+jp.template.prototype.setLayout = function(layout) {
   this.layout_ = layout;
 };
 
@@ -32,7 +32,7 @@ jp.layouts.prototype.setLayout = function(layout) {
  * Gets the layout
  * @return {string} the layout name.
 */
-jp.layouts.prototype.getLayout = function() {
+jp.template.prototype.getLayout = function() {
   return this.layout_;
 };
 
@@ -40,7 +40,7 @@ jp.layouts.prototype.getLayout = function() {
  * Sets the layout content
  * @param {string} layoutContent the layout name.
 */
-jp.layouts.prototype.setLayoutContent = function(layoutContent) {
+jp.template.prototype.setLayoutContent = function(layoutContent) {
   this.layoutContent_ = layoutContent;
 };
 
@@ -49,7 +49,7 @@ jp.layouts.prototype.setLayoutContent = function(layoutContent) {
  * Gets the layout content
  * @return {string} the layout name.
 */
-jp.layouts.prototype.getLayoutContent = function() {
+jp.template.prototype.getLayoutContent = function() {
   return this.layoutContent_;
 };
 
@@ -58,7 +58,7 @@ jp.layouts.prototype.getLayoutContent = function() {
  * Sets the style
  * @param {string|Array} style the style name.
 */
-jp.layouts.prototype.setStyle = function(style) {
+jp.template.prototype.setStyle = function(style) {
   this.style_ = style;
 };
 
@@ -67,7 +67,7 @@ jp.layouts.prototype.setStyle = function(style) {
  * Gets the style
  * @return {string|Array} the style name.
 */
-jp.layouts.prototype.getStyles = function() {
+jp.template.prototype.getStyles = function() {
   return this.style_;
 };
 
@@ -75,7 +75,7 @@ jp.layouts.prototype.getStyles = function() {
  * Sets the style content
  * @param {string} styleContent the style name.
 */
-jp.layouts.prototype.setStyleContent = function(styleContent) {
+jp.template.prototype.setStyleContent = function(styleContent) {
   this.styleContent_ = styleContent;
 };
 
@@ -84,7 +84,7 @@ jp.layouts.prototype.setStyleContent = function(styleContent) {
  * Gets the style content
  * @return {string} the style name.
 */
-jp.layouts.prototype.getStyleContent = function() {
+jp.template.prototype.getStyleContent = function() {
   return this.styleContent_;
 };
 
@@ -93,7 +93,7 @@ jp.layouts.prototype.getStyleContent = function() {
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
-jp.layouts.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
+jp.template.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
       layoutContent = util.findJsonData([jsonTitle, 'layoutContent'], jsonData);
@@ -108,7 +108,7 @@ jp.layouts.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
-jp.layouts.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
+jp.template.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       style = util.findJsonData([jsonTitle, 'style'], jsonData);
       styleContent = util.findJsonData([jsonTitle, 'styleContent'], jsonData);
@@ -123,7 +123,7 @@ jp.layouts.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
  * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
 */
-jp.layouts.prototype.loadLayout = function(name, path) {
+jp.template.prototype.loadLayout = function(name, path) {
   var compiled,
       success = function(data) {
         compiled = dust.compile(data, name);
@@ -140,7 +140,7 @@ jp.layouts.prototype.loadLayout = function(name, path) {
  * Renders a dust layout and stores the element
  * @param {string} name the layout name.
 */
-jp.layouts.prototype.renderLayout = function(name) {
+jp.template.prototype.renderLayout = function(name) {
   var data = jp.engineInstance.getJsonData(),
       layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
@@ -170,7 +170,7 @@ jp.layouts.prototype.renderLayout = function(name) {
  * Renders the created element to the dom
  * @param {string} name the layout name.
 */
-jp.layouts.prototype.renderDom = function() {
+jp.template.prototype.renderDom = function() {
   $('body').append(this.renderedElement_);
 };
 
@@ -180,7 +180,7 @@ jp.layouts.prototype.renderDom = function() {
  * @param {string} htmlString the html in string format.
  * @return {Node} the node created.
 */
-jp.layouts.prototype.convertLayoutToNode = function(htmlString) {
+jp.template.prototype.convertLayoutToNode = function(htmlString) {
   var div = document.createElement('div'),
       node;
 
@@ -204,7 +204,7 @@ jp.layouts.prototype.convertLayoutToNode = function(htmlString) {
  * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
 */
-jp.layouts.prototype.loadStyle = function(name, path) {
+jp.template.prototype.loadStyle = function(name, path) {
   var compiled,
       success = function(data) {
         compiled = dust.compile(data, name);
@@ -222,7 +222,7 @@ jp.layouts.prototype.loadStyle = function(name, path) {
  * @param {string} name the layout name.
  * @param {Element} parent the parent element to load the template into.
 */
-jp.layouts.prototype.renderStyle = function(name, parent) {
+jp.template.prototype.renderStyle = function(name, parent) {
   var data = jp.engineInstance.getJsonData(),
       styleContent = this.getStyleContent(),
       jsonData = data[styleContent],
@@ -245,7 +245,7 @@ jp.layouts.prototype.renderStyle = function(name, parent) {
  * Writes a CSS node used to add a style to.
  * @return {Element} The cssNode to embed the styles to.
  */
-jp.layouts.prototype.getCssNode = function() {
+jp.template.prototype.getCssNode = function() {
   if (this.cssNode_) {
     return this.cssNode_;
   }
@@ -266,7 +266,7 @@ jp.layouts.prototype.getCssNode = function() {
  * Adds CSS text to the dom's <head>
  * @param {string} cssText CSS to add to the end of the document.
  */
-jp.layouts.prototype.addCssText = function(cssText) {
+jp.template.prototype.addCssText = function(cssText) {
   var cssNode = this.getCssNode(),
       cssTextNode = document.createTextNode(cssText);
 
