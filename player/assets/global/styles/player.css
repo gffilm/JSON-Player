@@ -20,6 +20,7 @@
     cursor: pointer;
     color: {buttonColor};
     background-color: {buttonBgColor};
+    {#define name="test"/};
 }
 
 .control-bar-buttons {

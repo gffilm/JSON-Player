@@ -36,16 +36,7 @@
   },
   "playerModel": {
     "buttonMap":[
-        {"id": "skip-nav","function": null},
-        {"id": "reboot", "function": "test"},
-        {"id": "menu", "function": null},
-        {"id": "cc", "function": null},
-        {"id": "mute", "function": null},
-        {"id": "title", "function": null},
-        {"id": "play", "function": null},
-        {"id": "pause", "function": null},
-        {"id": "next", "function": null},
-        {"id": "skip-target","function": null}
+        {"id": "reboot", "function": "restart"}
       ]
   }
 }

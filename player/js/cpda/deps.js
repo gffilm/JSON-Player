@@ -23,19 +23,19 @@ deps.loadScripts = function() {
       loadError = false,
       currentApi;
 
-  // Set the libraries
+  // Set the scripts
   if (deps.PRODUCTION_MODE) {
-    libraries = [
+    scripts = [
     'js/lib/min/modernizr.min.js',
     'js/lib/min/jquery-1.11.1.min.js',
-    'js/lib/min/dust-full-0.3.0.min.js',
+    'js/lib/min/dust-full.min.js',
     'js/cpda/compiled.js'
     ];
   } else {
-    libraries = [
+    scripts = [
     'js/lib/modernizr.js',
     'js/lib/jquery-1.11.1.js',
-    'js/lib/dust-full-0.3.0.js',
+    'js/lib/dust-full.js',
     'js/cpda/jp/base.js',
     'js/cpda/jp/engine.js',
     'js/cpda/jp/page.js',
@@ -94,7 +94,7 @@ deps.loadScripts = function() {
 
   // use the yepnope script loader to load all scripts
   yepnope({
-    load: libraries,
+    load: scripts,
     callback: function(url) {
       if (!verifyAPI()) {
         if (!loadError) {

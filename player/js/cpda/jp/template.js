@@ -211,6 +211,7 @@ jp.template.prototype.loadStyle = function(name, path) {
         dust.loadSource(compiled);
         jp.events.talk(this, jp.events.styleLoad);
       }.bind(this);
+
   $.get(path, success).fail(function() {
     jp.error(jp.errorCodes['styleMissing']);
   });
