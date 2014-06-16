@@ -96,7 +96,7 @@ jp.template.prototype.getStyleContent = function() {
 jp.template.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
-      layoutContent = util.findJsonData([jsonTitle, 'layoutContent'], jsonData);
+      layoutContent = util.findJsonData([jsonTitle, 'layoutContext'], jsonData);
 
   this.setLayout(layout);
   this.setLayoutContent(layoutContent);
@@ -111,7 +111,7 @@ jp.template.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
 jp.template.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       style = util.findJsonData([jsonTitle, 'style'], jsonData);
-      styleContent = util.findJsonData([jsonTitle, 'styleContent'], jsonData);
+      styleContent = util.findJsonData([jsonTitle, 'styleContext'], jsonData);
 
   this.setStyle(style);
   this.setStyleContent(styleContent);

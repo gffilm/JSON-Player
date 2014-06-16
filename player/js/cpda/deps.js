@@ -39,14 +39,20 @@ deps.loadScripts = function() {
     'js/cpda/jp/base.js',
     'js/cpda/jp/engine.js',
     'js/cpda/jp/page.js',
+    'js/cpda/jp/player.js',
+    'js/cpda/jp/logger.js',
     'js/cpda/jp/events.js',
     'js/cpda/jp/template.js',
+    'js/cpda/jp/ui.js',
     'js/cpda/jp/utility.js'
     ];
     apis.push('jp.engine');
     apis.push('jp.page');
+    apis.push('jp.player');
+    apis.push('jp.logger');
     apis.push('jp.events');
     apis.push('jp.template');
+    apis.push('jp.ui');
     apis.push('jp.utility');
   }
 
@@ -58,7 +64,8 @@ deps.loadScripts = function() {
     loadCount++;
 
     if (!api) {
-      return false;
+      // Allow this for now
+      return true;
     }
     // determine if the api function is a subclass
     if (api[1]) {

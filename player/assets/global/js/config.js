@@ -3,17 +3,14 @@
     "title": "Course Title",
     "description": "Course Description"
   },
-  "loader": {
-    "layout": "basic",
-    "layoutContent": "welcomeContent"
-  },
   "player": {
     "layout": "player",
     "style": ["canvas", "player"],
-    "styleContent": "playerCss",
-    "layoutContent": "playerContent"
+    "styleContext": "playerCss",
+    "layoutContext": "playerLayout",
+    "modelContext": "playerModel"
   },
-  "playerContent": {
+  "playerLayout": {
     "id": "player",
     "class": "jp-player",
     "buttons":[
@@ -36,5 +33,19 @@
     "buttonBgHoverColor":"#222",
     "progressBarColor":"#a58306",
     "focus":"3px solid #d85a1a"
+  },
+  "playerModel": {
+    "buttonMap":[
+        {"id": "skip-nav","function": null},
+        {"id": "reboot", "function": "test"},
+        {"id": "menu", "function": null},
+        {"id": "cc", "function": null},
+        {"id": "mute", "function": null},
+        {"id": "title", "function": null},
+        {"id": "play", "function": null},
+        {"id": "pause", "function": null},
+        {"id": "next", "function": null},
+        {"id": "skip-target","function": null}
+      ]
   }
 }

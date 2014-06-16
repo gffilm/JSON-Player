@@ -5,13 +5,13 @@
  */
  jp.engine = function() {
 
-  /*
+ /*
  * Set the number of asset paths
  * @type {boolean}
  */
   this.assetPathsLoaded_ = 0;
 
-  /*
+ /*
  * Set the jsonData
  * @type {Object}
  */
@@ -22,6 +22,12 @@
  * @type {string}
  */
   this.template_;
+
+ /*
+ * Set the utility
+ * @type {Object}
+ */
+  this.utility_ = new jp.utility();
  };
 
 /*
@@ -133,8 +139,12 @@ jp.engine.prototype.handleJSONLoad = function(data) {
  * The engine is now loaded and can start its real work
 */
 jp.engine.prototype.activate = function() {
-  document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
-  this.player_ = new jp.page('player', this.getJsonData());
+  this.title_ = this.getConfig(['course', 'title']);
+  document.title = this.title_;
+  // Create the player
+  this.player_ = new jp.player('player', this.getJsonData());
+  // Set the player title
+  this.player_.setTitle(this.title_);
 };
 
 
@@ -144,4 +154,14 @@ jp.engine.prototype.activate = function() {
 */
 jp.engine.prototype.getJsonData = function() {
   return this.jsonData_;
+};
+
+
+/*
+ * Gets the jsondata
+ * @param {Array} data the data to look for.
+ * @return {*} the data or null.
+*/
+jp.engine.prototype.getConfig = function(data) {
+  return this.utility_.findJsonData(data, this.getJsonData());
 };

@@ -1,5 +1,11 @@
 
 /*
+ * The logger class
+*/
+jp.logger = function() {};
+
+
+/*
  * The Error objects wih a code and detail
  */
 jp.errorCodes = {
@@ -19,12 +25,17 @@ jp.errorCodes = {
  * Logs an error
  * @param {jp.errorCodes} error the error object.
  * @param {string=} optInfo optional error information.
+ * @param {boolean=} critical errors throw an alert and stops script execution
 */
-jp.error = function(error, optInfo) {
+jp.error = function(error, optInfo, critical) {
   if (optInfo) {
     console.log('Info:', error['detail'], ' Code:', error['code'], optInfo);
   } else {
     console.log('Info:', error['detail'], ' Code:', error['code']);
+  }
+  if (critical) {
+    alert(error['detail'] + '\n\nErrorCode:' + error['code']);
+    throw Error('Critical error occurred');
   }
 };
 

@@ -10,7 +10,7 @@ jp.ui = function() {};
  * @param {string} id the element id.
  * @param {string} innerHTML the innerHtml to set.
 */
-jp.ui.prototype.setHtmlById = function(id, innerHTML) {
+jp.ui.setHtmlById = function(id, innerHTML) {
   $('#' + id).html(innerHTML);
 };
 
@@ -23,7 +23,7 @@ jp.ui.prototype.setHtmlById = function(id, innerHTML) {
  * @param {string=} innerHTML the innerHtml to set.
  * @return {Element} the element created
 */
-jp.ui.prototype.createElement = function(type, id, className, innerHTML) {
+jp.ui.createElement = function(type, id, className, innerHTML) {
   return jQuery('<' +type + '>', {
     'id': id,
     'text': innerHTML,

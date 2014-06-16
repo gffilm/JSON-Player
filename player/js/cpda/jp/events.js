@@ -1,6 +1,8 @@
+
 /*
  * All event types
 */
+
 jp.events = {
   layoutLoad: 'layoutLoad',
   styleLoad: 'styleLoad',
