@@ -38,11 +38,13 @@ deps.loadScripts = function() {
     'js/lib/dust-full-0.3.0.js',
     'js/cpda/jp/base.js',
     'js/cpda/jp/engine.js',
+    'js/cpda/jp/page.js',
     'js/cpda/jp/events.js',
     'js/cpda/jp/template.js',
     'js/cpda/jp/utility.js'
     ];
     apis.push('jp.engine');
+    apis.push('jp.page');
     apis.push('jp.events');
     apis.push('jp.template');
     apis.push('jp.utility');
@@ -54,6 +56,10 @@ deps.loadScripts = function() {
         apiFunctionn;
     // increment the load count
     loadCount++;
+
+    if (!api) {
+      return false;
+    }
     // determine if the api function is a subclass
     if (api[1]) {
       apiFunctionn = window[api[0]];

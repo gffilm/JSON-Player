@@ -85,22 +85,6 @@ jp.engine.prototype.getAssetPaths = function() {
 };
 
 
-
-/*
- * Verifies libraries
- * @return {Boolean} are all libraries available?
-*/
-jp.engine.prototype.verifyAPIs = function() {
-  verified = true;
-  for (i in this.libraryAPIs_) {
-    if (!window[this.libraryAPIs_[i]]) {
-      verified = false;
-    }
-  }
-  return verified;
-};
-
-
 /*
  * Loads the json files one at a time to ensure the json data is cascaded by priority
  * @param {Array} paths we take the first path to load.
@@ -150,126 +134,13 @@ jp.engine.prototype.handleJSONLoad = function(data) {
 */
 jp.engine.prototype.activate = function() {
   document.title = new jp.utility().findJsonData(['course', 'title'], this.getJsonData());
-  this.template_ = new jp.template;
-  this.modelName_ = 'player';
-  this.loadStyles();
-  this.loadLayouts();
-  jp.events.listen(this.template_, jp.events.styleLoad, this.renderStyle, this);
-  jp.events.listen(this.template_, jp.events.layoutLoad, this.renderLayout, this);
-  jp.events.listen(this.template_, jp.events.elementRendered, this.setButtonEvents, this);
-};
-
-
-/*
- * Loads the layout for a specific model
-*/
-jp.engine.prototype.loadStyles = function() {
-  this.template_.renderJsonStyles(this.modelName_, this.getJsonData());
-  var  styles = this.template_.getStyles(),
-      totalStyles = styles.length,
-      i;
-
-  
-  // Load the layouts
-  if (styles) {
-    for (i = 0; i < totalStyles; i++) {
-      this.template_.loadStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
-    }
-  } else {
-    jp.error(jp.errorCodes['styleMissingFromConfig']);
-  }
-};
-
-
-/*
- * Loads the layout for a specific model
-*/
-jp.engine.prototype.loadLayouts = function() {
-  this.template_.renderJsonLayouts(this.modelName_, this.getJsonData());
-  // Load the layouts
-  if (this.template_.getLayout()) {
-    this.template_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.template_.getLayout() + '.html');
-  } else {
-    jp.error(jp.errorCodes['layoutMissingFromConfig']);
-  }
-};
-
-
-/*
- * Renders the layout
-*/
-jp.engine.prototype.renderLayout = function() {
-  this.template_.renderLayout(this.modelName_);
-};
-
-
-/*
- * Sets button events
-*/
-jp.engine.prototype.setButtonEvents = function() {
-  var buttons = this.template_.renderedElement_.getElementsByClassName('button'),
-      totalButtons = buttons.length,
-      button,
-      i;
-
-  for (i = 0; i < totalButtons; i++) {
-    button = buttons[i];
-    this.onClickEvent(button);
-  }
-
-  this.template_.renderDom();
-};
-
-/*
- * Handles event for an element
-*/
-jp.engine.prototype.onClickEvent = function(element) {
-  var callback;
-
-  switch (element.id) {
-    case 'reboot':
-      callback = jp.restart;
-      break;
-    case 'menu':
-      callback = jp.restart;
-      break;
-    default:
-      return;
-  }
-
-  $(element).bind('click', (function(evt) {
-    callback();
-  }));
-};
-
-
-/*
- * Renders the dom
-*/
-jp.engine.prototype.renderDom = function() {
-  this.template_.renderDom();
-};
-
-
-/*
- * Loads the style
-*/
-jp.engine.prototype.loadStyle = function() {
-  this.template_.loadStyle(this.modelName_);
-};
-
-
-/*
- * Renders the style
-*/
-jp.engine.prototype.renderStyle = function() {
-  this.template_.renderStyle(this.modelName_);
+  this.player_ = new jp.page('player', this.getJsonData());
 };
 
 
 /*
  * Gets the jsondata
- * @return {string} the layout name.
+ * @return {Object} the data object.
 */
 jp.engine.prototype.getJsonData = function() {
   return this.jsonData_;
