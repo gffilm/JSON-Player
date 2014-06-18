@@ -36,8 +36,9 @@ jp.dustHelper = function() {
     var id = params.id.split('.'),
         localized = this.findDataByType(id, 'localization');
 
-    if (!localized) {
+    if (!localized || typeof(localized) === 'object') {
       jp.error(jp.errorCodes.localizedStringMissing, id);
+      localized = '';
     }
 
     return chunk.write(localized);
