@@ -2,7 +2,7 @@
 /*
  * The Template class
 */
-jp.template = function() {
+jp.template = function(data) {
 
  /*
   * The layout name
@@ -10,11 +10,20 @@ jp.template = function() {
  */
   this.layout_;
 
+  /*
+ * Set the data
+ * @type {Object}
+ */
+  this.data_ = data;
+
  /*
   * The layout content
   * @type {string}
  */
   this.layoutContent_;
+
+
+  this.dustHelper_ =  new jp.dustHelper(data);
 };
 
 
@@ -141,9 +150,10 @@ jp.template.prototype.loadLayout = function(name, path) {
  * @param {string} name the layout name.
 */
 jp.template.prototype.renderLayout = function(name) {
-  var data = jp.engineInstance.getJsonData(),
+  var data = this.data_,
       layoutContent = this.getLayoutContent(),
       jsonData = data[layoutContent],
+      dustHelpers = this.dustHelper_,
       element;
 
     callback = function(error, html) {
@@ -161,6 +171,7 @@ jp.template.prototype.renderLayout = function(name) {
   if (!jsonData) {
     jp.error(jp.errorCodes['dustMarkup']);
   } else {
+    $.extend(jsonData, dustHelpers);
     dust.render(name, jsonData, callback);
   }
 };
@@ -224,10 +235,10 @@ jp.template.prototype.loadStyle = function(name, path) {
  * @param {Element} parent the parent element to load the template into.
 */
 jp.template.prototype.renderStyle = function(name, parent) {
-  var data = jp.engineInstance.getJsonData(),
+  var data = this.data_,
       styleContent = this.getStyleContent(),
       jsonData = data[styleContent],
-      dustHelpers = this.getDustHelpers();
+      dustHelpers = this.dustHelper_;
       callback = function(error, info) {
         if (error) {
           jp.error(jp.errorCodes['dustError'], error);
@@ -284,12 +295,12 @@ jp.template.prototype.addCssText = function(cssText) {
 };
 
 
-/*
- * Gets the dust helpers
- * @return {Object[Function]} the dust helpers functions
-*/
-jp.template.prototype.getDustHelpers = function() {
-  var helpers = new jp.dustHelpers();
 
-  return helpers;
-}
+/**
+ * Gets the rendered layout
+ * @return {Element} The rendered layout
+ */
+jp.template.prototype.getRenderedLayout = function() {
+  return this.renderedElement_;
+};
+

@@ -38,9 +38,5 @@ jp.ui.createElement = function(type, id, className, innerHTML) {
  * @param {Element} the element to remove
 */
 jp.ui.removeElement = function(element) {
-  try {
-    element.remove();
-  } catch(e) {
-    element.parentNode.removeChild(element);
-  }
+  $(element).remove();
 };

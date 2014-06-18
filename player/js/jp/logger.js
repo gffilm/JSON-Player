@@ -17,7 +17,8 @@ jp.errorCodes = {
   'layoutMissingFromConfig': {'code': 'dust-004', 'detail': 'Dust layout missing from config'},
   'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'},
   'styleMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
-  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'}
+  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'},
+  'localizedStringMissing': {'code': 'dust-004', 'detail': 'Localized text not found for id'}
 };
 
 
@@ -29,9 +30,9 @@ jp.errorCodes = {
 */
 jp.error = function(error, optInfo, critical) {
   if (optInfo) {
-    console.log('Info:', error['detail'], ' Code:', error['code'], optInfo);
+    console.log(error['detail'] + ' - ', optInfo);
   } else {
-    console.log('Info:', error['detail'], ' Code:', error['code']);
+    console.log(error['detail']);
   }
   if (critical) {
     alert(error['detail'] + '\n\nErrorCode:' + error['code']);

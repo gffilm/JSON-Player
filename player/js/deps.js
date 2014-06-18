@@ -43,7 +43,7 @@ deps.loadScripts = function() {
     'js/jp/logger.js',
     'js/jp/events.js',
     'js/jp/template.js',
-    'js/jp/dustHelpers.js',
+    'js/jp/dustHelper.js',
     'js/jp/ui.js',
     'js/jp/utility.js'
     ];
@@ -53,7 +53,7 @@ deps.loadScripts = function() {
     apis.push('jp.logger');
     apis.push('jp.events');
     apis.push('jp.template');
-    apis.push('jp.dustHelpers');
+    apis.push('jp.dustHelper');
     apis.push('jp.ui');
     apis.push('jp.utility');
   }

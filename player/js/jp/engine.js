@@ -108,27 +108,44 @@ jp.engine.prototype.loadJSON = function(paths, callback) {
   // get the json file
   request = $.getJSON(path, function(data) {
     // run the callback with the data
-    callback(data);
+    callback(path, data);
     // reload this function until there are no more paths
     this.loadJSON(paths, callback);
   }.bind(this)).fail(function(data, response) {
     // load failure handler
     jp.error(jp.errorCodes['jsonLoad'], path + ' ' + response);
     this.loadJSON(paths, callback);
-    callback({});
+    callback(path, {});
   }.bind(this));
 };
 
 
 /*
  * Handles json paths loaded
+ * @param {string} path the path the data came from.
  * @param {Object} data the json data.
 */
-jp.engine.prototype.handleJSONLoad = function(data) {
+jp.engine.prototype.handleJSONLoad = function(path, data) {
+  var fileType = path.split('/')[path.split('/').length -1].split('.')[0],
+      extended = false;
   // Increment the number of paths loaded
   this.assetPathsLoaded_++;
-  // Extend the jsonData object
-  $.extend(this.jsonData_, data);
+
+  // Extend the jsonData object with the filetype
+  if (!this.jsonData_[fileType]) {
+    this.jsonData_[fileType] = data;
+  } else {
+    for (i in data) {
+      if (this.jsonData_[fileType][i]) {
+        $.extend(this.jsonData_[fileType][i], data[i]);
+        extended = true;
+      }
+    }
+    if (!extended) {
+      $.extend(this.jsonData_[fileType], data);
+    }
+  }
+  
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
     this.activate();
@@ -140,10 +157,10 @@ jp.engine.prototype.handleJSONLoad = function(data) {
  * The engine is now loaded and can start its real work
 */
 jp.engine.prototype.activate = function() {
-  this.title_ = this.getConfig(['course', 'title']);
+  this.title_ = this.findDataByType(['course', 'title'], 'config');
   document.title = this.title_;
   // Create the player
-  this.player_ = new jp.player('player', this.getJsonData());
+  this.player_ = new jp.player('player', this.getConfig());
   // Set the player title
   this.player_.setTitle(this.title_);
 };
@@ -164,5 +181,16 @@ jp.engine.prototype.getJsonData = function() {
  * @return {*} the data or null.
 */
 jp.engine.prototype.getConfig = function(data) {
-  return this.utility_.findJsonData(data, this.getJsonData());
+  return this.getJsonData()['config'];
+};
+
+
+/*
+ * Finds specific jsondata
+ * @param {Array} data the data to look for.
+ * @param {string} type the type to look for.
+ * @return {*} the data or null.
+*/
+jp.engine.prototype.findDataByType = function(data, type) {
+  return this.utility_.findJsonData(data, this.getJsonData()[type]);
 };

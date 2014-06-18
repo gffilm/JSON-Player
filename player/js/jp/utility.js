@@ -31,6 +31,7 @@ jp.utility.prototype.findJsonData = function(needles, haystack) {
     if (haystack[needle]) {
       haystack = haystack[needle];
       found = true;
+    } else {
     }
   }
   return found ? haystack : null;

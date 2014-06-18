@@ -2,9 +2,9 @@
 /*
  * The page class
  * @param {string} the current model name.
- * @param {Object} the content. 
+ * @param {Object} data the data. 
 */
-jp.page = function(modelName, content) {
+jp.page = function(modelName, data) {
 
   /*
  * Set the utility
@@ -12,22 +12,30 @@ jp.page = function(modelName, content) {
  */
   this.utility_ = new jp.utility();
 
+ /*
+ * Set the data
+ * @type {Object}
+ */
+  this.data_ = data;
+
   // Set the model name
   this.modelName_ = modelName;
 
   // Set the model to the current model name
-  this.model_ = content[modelName];
+  this.model_ = data[modelName];
 
   // Set the model to the current model name
   this.contextName_ = this.model_['modelContext'];
 
-  this.modelContext_ = this.getConfig([this.contextName_], content);
+  this.modelContext_ = this.findData([this.contextName_]);
+
+  this.buttonMap_ = this.modelContext_['buttonMap'];
 
   // The model's title
   this.title_;
 
   // Create a template instance
-  this.template_ = new jp.template;
+  this.template_ = new jp.template(data);
 
   // Load styles and layouts
   this.loadStyles();
@@ -84,29 +92,10 @@ jp.page.prototype.renderLayout = function() {
 
 
 jp.page.prototype.activate = function() {
-  this.setButtonMap();
-  this.setButtonEvents();
   this.template_.renderDom();
+  this.matchButtonEvents();
   this.setHtml();
 }
-
-/*
- * Sets button events
-*/
-jp.page.prototype.setButtonEvents = function() {
-  if (typeof this.template_.renderedElement_.getElementsByClassName != 'function') {
-    return;
-  }
-  var buttons = this.template_.renderedElement_.getElementsByClassName('button'),
-      totalButtons = buttons.length,
-      button,
-      i;
-
-  for (i = 0; i < totalButtons; i++) {
-    button = buttons[i];
-    this.matchButtonEvents(button);
-  }
-};
 
 
 /*
@@ -116,13 +105,6 @@ jp.page.prototype.setHtml = function() {
   jp.ui.setHtmlById('title', this.title_);
 };
 
-
-/*
- * Sets the button maps
-*/
-jp.page.prototype.setButtonMap = function() {  
-  this.buttonMap_ = this.modelContext_['buttonMap'];
-}
 
 /*
  * Gets the button maps
@@ -135,7 +117,7 @@ jp.page.prototype.getButtonMap = function() {
 /*
  * Handles event for an element
 */
-jp.page.prototype.matchButtonEvents = function(element) {
+jp.page.prototype.matchButtonEvents = function() {
   var callbackString,
       callbackFunction,
       buttonMaps = this.getButtonMap(),
@@ -145,7 +127,8 @@ jp.page.prototype.matchButtonEvents = function(element) {
 
   for (i = 0; i < totalbuttonMaps; i++) {
     buttonMap = buttonMaps[i];
-    if (buttonMap['id'] === element.id) {
+    element =  document.getElementById(buttonMap['id']);
+    if (element) {
       callbackString = buttonMap['function'];
       if (callbackString) {
         // tie the function to this instance, then try the jp instance
@@ -229,10 +212,18 @@ jp.page.prototype.setTitle = function(title) {
 
 /*
  * Gets the jsondata
+ * @return {Object} the data object.
+*/
+jp.page.prototype.getData = function() {
+  return this.data_;
+};
+
+/*
+ * Finds specific jsondata
  * @param {Array} data the data to look for.
+ * @param {string} type the type to look for.
  * @return {*} the data or null.
 */
-jp.page.prototype.getConfig = function(data, content) {
-  dataModel = content || this.getModel();
-  return this.utility_.findJsonData(data, dataModel);
+jp.page.prototype.findData = function(data) {
+  return this.utility_.findJsonData(data, this.getData());
 };
