@@ -138,8 +138,10 @@ jp.engine.prototype.handleJSONLoad = function(path, data) {
     for (i in data) {
       if (this.jsonData_[fileType][i]) {
         $.extend(this.jsonData_[fileType][i], data[i]);
-        extended = true;
+      } else {
+        this.jsonData_[fileType][i] = data[i];
       }
+      extended = true;
     }
     if (!extended) {
       $.extend(this.jsonData_[fileType], data);
@@ -157,12 +159,10 @@ jp.engine.prototype.handleJSONLoad = function(path, data) {
  * The engine is now loaded and can start its real work
 */
 jp.engine.prototype.activate = function() {
-  this.title_ = this.findDataByType(['course', 'title'], 'config');
+  this.title_ = this.findDataByType(['course', 'title'], 'localization');
   document.title = this.title_;
   // Create the player
   this.player_ = new jp.player('player', this.getConfig());
-  // Set the player title
-  this.player_.setTitle(this.title_);
 };
 
 

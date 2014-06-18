@@ -9,5 +9,9 @@
 		"play" : "Play",
 		"pause" : "Pause",
 		"next" : "Next"
+	},
+	"course": {
+		"title": "Course Title",
+		"description": "Course Description"
 	}
 }
