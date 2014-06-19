@@ -8,6 +8,7 @@
     bottom: 0;
     background: {#gradient name="controlBarBg" /};
     height: 40px;
+    display: inherit;
 }
 
 .control-bar .title {

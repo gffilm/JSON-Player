@@ -233,6 +233,7 @@ jp.template.prototype.loadNextStyle = function(callback) {
   if (this.styleQueue_.length > 0) {
     // Get the last item in the queue (lowest priority first)
     style = this.styleQueue_[this.styleQueue_.length -1];
+    console.log('loading path', style['path']);
     this.loadStyle(style['name'], style['path']);
     this.styleQueue_.pop();
   } else {
@@ -304,8 +305,8 @@ jp.template.prototype.getCssNode = function() {
   this.cssNode_ = cssNode;
 
   // Add event listeners for when the page is removed or when the engine reboots
-  jp.events.listen(jp.engineInstance, jp.events.reboot, this.removeCss, this).
-            listen(this, jp.events.removeCss, this.removeCss, this);
+  jp.events.listen(jp.engineInstance, jp.events.reboot, this.removeCss, this);
+  jp.events.listen(this, jp.events.removeCss, this.removeCss, this);
   return this.cssNode_;
 };
 
