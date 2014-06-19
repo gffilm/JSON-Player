@@ -45,6 +45,7 @@
  * @public
 */
  jp.restart = function() {
+  jp.events.talk(jp.engineInstance, jp.events.reboot);
   var bodyChild = document.body.children[0];
   jp.ui.removeElement(bodyChild);
   jp.engineInstance = null;

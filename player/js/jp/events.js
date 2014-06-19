@@ -8,7 +8,8 @@ jp.events = {
   styleLoad: 'styleLoad',
   styleLoaded: 'styleLoaded',
   elementRendered: 'elementRendered',
-  reboot: 'reboot'
+  reboot: 'reboot',
+  removeCss: 'removeCss'
 };
 
 /*

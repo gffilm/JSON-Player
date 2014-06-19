@@ -270,8 +270,21 @@ jp.template.prototype.getCssNode = function() {
   cssNode.type = 'text/css';
   head.appendChild(cssNode);
   this.cssNode_ = cssNode;
-  mynode = this.cssNode_;
+
+  // Add event listeners for when the page is removed or when the engine reboots
+  jp.events.listen(jp.engineInstance, jp.events.reboot, this.removeCss, this).
+            listen(this, jp.events.removeCss, this.removeCss, this);
   return this.cssNode_;
+};
+
+
+/**
+ * Removes the css Node on an event call
+ */
+jp.template.prototype.removeCss = function() {
+  if (this.cssNode_) {
+    jp.ui.removeElement(this.cssNode_);
+  }
 };
 
 
