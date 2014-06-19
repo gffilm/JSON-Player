@@ -7,6 +7,8 @@ jp.events = {
   layoutLoad: 'layoutLoad',
   allStylesLoaded: 'allStylesLoaded',
   elementRendered: 'elementRendered',
+  readyToActivate: 'readyToActivate',
+  activated: 'activated',
   reboot: 'reboot',
   removeCss: 'removeCss'
 };

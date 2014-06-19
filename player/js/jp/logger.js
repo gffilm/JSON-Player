@@ -19,7 +19,9 @@ jp.errorCodes = {
   'styleMissing': {'code': 'dust-003', 'detail': 'CSS stylesheet missing'},
   'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing from config'},
   'localizedStringMissing': {'code': 'dust-004', 'detail': 'Localized text not found for id'},
-  'gradientMissing': {'code': 'dust-005', 'detail': 'Gradient not found for id'}
+  'gradientMissing': {'code': 'dust-005', 'detail': 'Gradient not found for id'},
+  'parentMissing': {'code': 'model-001', 'detail': 'Parent element not found'},
+  'childMissing': {'code': 'model-001', 'detail': 'Child element not found'}
 };
 
 

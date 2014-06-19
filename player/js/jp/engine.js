@@ -49,7 +49,7 @@
   var bodyChild = document.body.children[0];
   jp.ui.removeElement(bodyChild);
   jp.engineInstance = null;
-   jp.startup();
+  jp.startup();
  };
 
 
@@ -153,19 +153,28 @@ jp.engine.prototype.handleJSONLoad = function(path, data) {
   
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
-    this.activate();
+    this.createPlayer();
   }
 };
 
 
 /*
- * The engine is now loaded and can start its real work
+ * The engine is now loaded, start the player
 */
-jp.engine.prototype.activate = function() {
+jp.engine.prototype.createPlayer = function() {
   this.title_ = this.findDataByType(['course', 'title'], 'localization');
   document.title = this.title_;
   // Create the player
   this.player_ = new jp.player('player', this.getConfig());
+  jp.events.listen(this.player_, jp.events.readyToActivate, this.startPlayer, this);
+};
+
+
+/*
+ * Start the player
+*/
+jp.engine.prototype.startPlayer = function() {
+  this.player_.activate();
 };
 
 

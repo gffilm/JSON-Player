@@ -38,7 +38,7 @@ deps.loadScripts = function() {
     'js/lib/dust-full.js',
     'js/jp/base.js',
     'js/jp/engine.js',
-    'js/jp/page.js',
+    'js/jp/layer.js',
     'js/jp/player.js',
     'js/jp/logger.js',
     'js/jp/events.js',
@@ -48,7 +48,7 @@ deps.loadScripts = function() {
     'js/jp/utility.js'
     ];
     apis.push('jp.engine');
-    apis.push('jp.page');
+    apis.push('jp.layer');
     apis.push('jp.player');
     apis.push('jp.logger');
     apis.push('jp.events');

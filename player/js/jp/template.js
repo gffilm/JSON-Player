@@ -185,10 +185,12 @@ jp.template.prototype.renderLayout = function(name) {
 
 /*
  * Renders the created element to the dom
- * @param {string} name the layout name.
+ * @param {parent} parent the element to append this element to.
 */
-jp.template.prototype.renderDom = function() {
-  $('body').append(this.renderedElement_);
+jp.template.prototype.renderDom = function(parent) {
+  myP = parent;
+  p = $(myP);
+  $(parent).append(this.renderedElement_);
 };
 
 
@@ -233,7 +235,6 @@ jp.template.prototype.loadNextStyle = function(callback) {
   if (this.styleQueue_.length > 0) {
     // Get the last item in the queue (lowest priority first)
     style = this.styleQueue_[this.styleQueue_.length -1];
-    console.log('loading path', style['path']);
     this.loadStyle(style['name'], style['path']);
     this.styleQueue_.pop();
   } else {
