@@ -28,8 +28,9 @@
       ]
   },
   "playerCss": {
-    "buttonColor":"#5f5f5f",
-    "buttonBgColor":"#000",
+    "bodyFont": "fontFamily1",
+    "buttonColor":"#fff",
+    "buttonBgColor": "gradient1",
     "buttonHoverColor":"#ccc",
     "buttonBgHoverColor":"#222",
     "progressBarColor":"#a58306",

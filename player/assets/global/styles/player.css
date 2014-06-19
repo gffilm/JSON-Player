@@ -8,6 +8,7 @@
     bottom: 0;
     position: absolute;
     width: inherit;
+    background: -moz-linear-gradient(center top , #e9eded 0%, #fdfefe 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
 }
 
 .control-bar .button {
@@ -19,8 +20,8 @@
     margin: 3px;
     cursor: pointer;
     color: {buttonColor};
-    background-color: {buttonBgColor};
-    border: {#define name="buttonBorder"/};
+    background-color: {#gradient name="buttonBgColor" /};
+    border: {#define name="buttonBorder" /};
 }
 
 .control-bar-buttons {

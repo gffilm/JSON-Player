@@ -3,7 +3,7 @@
 		"skipContent" : "skip content",
 		"skipTarget" : "skip target",
 		"reboot" : "Reboot",
-		"home" : "Home",
+		"home" : "Menu",
 		"cc" : "cc",
 		"mute" : "Volume",
 		"play" : "Play",

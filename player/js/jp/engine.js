@@ -76,6 +76,7 @@ jp.engine.prototype.getAssetPaths = function() {
   //The Asset paths to load
   assetPaths = [
   'assets/global/js/config.js',
+  'assets/global/js/dustContext.js',
   'assets/' + language + '/js/config.js',
   'assets/' + language + '/js/localization.js'
   ];
@@ -83,6 +84,7 @@ jp.engine.prototype.getAssetPaths = function() {
   if (courseId) {
     assetPaths.push(
     '../courses/' + courseId + '/assets/global/js/config.js',
+    '../courses/' + courseId + '/assets/global/js/dustContext.js',
     '../courses/' + courseId + '/assets/' + language + '/js/config.js',
     '../courses/' + courseId + '/assets/' + language + '/js/localization.js'
     );
