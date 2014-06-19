@@ -4,8 +4,8 @@
 	<div class="progress"></div>
 	<div class="control-bar-buttons">
 	  {#elements}
-		<div id="{id}" class="{class}" role="button" tabIndex="{?tabIndex}{tabIndex}{:else}-1{/tabIndex}">
-			{#localize id=localizedId /}
+		<div id="{id}" class="{class}" role="button" tabIndex="{?tabIndex}{tabIndex}{:else}-1{/tabIndex}" title="{#localize id=title /}">
+			{#localize id=html /}
 		</div>
 	  {/elements}
 	</div>

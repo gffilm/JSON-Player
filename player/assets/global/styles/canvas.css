@@ -8,7 +8,7 @@ body {
 button:focus,
 div:focus,
 span:focus {
-    outline: {focus};
+    outline: {#define name="focus" /};
 }
 
 .hidden {
@@ -32,10 +32,10 @@ span:focus {
 
 .canvas {
     background-color: #fff;
-    height: 439px;
+    height: 435px;
     margin: 0 auto;
     overflow: hidden;
     position: relative;
     width: 788px;
-    border: 1px solid red;
+    border: {#define name="canvasBorder" /};
 }

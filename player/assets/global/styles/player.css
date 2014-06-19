@@ -1,43 +1,101 @@
 .progress {
     height: 5px;
     width: 100%;
-    background-color: {progressBarColor};
+    background-color: {#define name="progressBarBg" /};
 }
 
 .control-bar {
     bottom: 0;
-    position: absolute;
-    width: inherit;
-    background: -moz-linear-gradient(center top , #e9eded 0%, #fdfefe 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
-}
-
-.control-bar .button {
-    display: inline-block;
-    font-weight: bold;
-    line-height: 12px;
-    text-align: center;
-    padding: 10px 15px;
-    margin: 3px;
-    cursor: pointer;
-    color: {buttonColor};
-    background-color: {#gradient name="buttonBgColor" /};
-    border: {#define name="buttonBorder" /};
-}
-
-.control-bar-buttons {
-    text-align: center;
+    background: {#gradient name="controlBarBg" /};
+    height: 40px;
 }
 
 .control-bar .title {
-    display: inline-block;
     font-weight: bold;
     line-height: 12px;
-    text-align: center;
+    width: 410px;
     padding: 10px 25px;
     margin: 0 10px;
+    float: left;
+}
+
+.control-bar-buttons {
+    text-align: left;
+}
+
+.control-bar .button {
+    font-weight: bold;
+    line-height: 12px;
+    text-align: left;
+    padding: 15px;
+    margin: 3px;
+    cursor: pointer;
+    color: {#define name="controlBarText" /};
+    background-color: {#gradient name="controlBarButtonBg" /};
+    border: {#define name="buttonBorder" /};
+    background: url("{#asset name="spritemap_nav.gif" /}") no-repeat scroll 0 0 transparent;
+    float: left;
 }
 
 .control-bar .button:hover {
-    color: {buttonHoverColor};
-    background-color: {buttonBgHoverColor};
+    color: {#define name="controlBarTextHover" /};
+}
+
+
+.control-bar #menu {
+    background-color: {#gradient name="menuButton" /};
+    height: 12px;
+    padding: .5em;
+}
+
+.control-bar #menu:hover {
+    background-color: {#gradient name="menuButtonBgHover" /};
+}
+.control-bar #cc {
+    background-position: -351px 0;
+}
+
+.control-bar #cc:hover {
+    background-position: -351px -140px;
+}
+
+.control-bar #mute {
+    background-position: -424px -1px;
+}
+
+.control-bar #mute:hover {
+    background-position: -424px -137px;
+}
+
+.control-bar #back {
+    background-position: -206px 2px;
+}
+
+.control-bar #back:hover {
+    background-position: -206px -137px;
+}
+
+.control-bar #play {
+    background-position: -136px 2px;
+}
+
+.control-bar #play:hover {
+    background-position: -136px -68px;
+}
+
+.control-bar #next {
+    background-position: -276px 2px;
+}
+
+.control-bar #next:hover {
+    background-position: -276px -138px;
+}
+
+.control-bar #reboot {
+    background-position: -486px 2px;
+    height: 0;
+}
+
+.control-bar #reboot:hover {
+    background-position: -486px -69px;
 }

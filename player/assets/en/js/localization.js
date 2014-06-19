@@ -2,12 +2,13 @@
 	"player": {
 		"skipContent" : "skip content",
 		"skipTarget" : "skip target",
-		"reboot" : "Reboot",
-		"home" : "Menu",
-		"cc" : "cc",
+		"reboot" : "&nbsp;",
+		"menu" : "Menu",
+		"menuTitle" : "Open / Close Menu",
+		"cc" : "Transcript",
 		"mute" : "Volume",
-		"play" : "Play",
-		"pause" : "Pause",
+		"back" : "Back",
+		"play" : "Play / Pause",
 		"next" : "Next"
 	},
 	"course": {

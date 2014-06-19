@@ -1,12 +1,10 @@
 {
   "color0": "#000",
   "color1": "#fff",
-  "gradient0": {"type": "top", "start": "#fff", "end": "#fff", "legacy": "#fff"},
-  "gradient1": {"type": "top", "start": "#0e1d31", "end": "#173050", "legacy": "#173050"},
-  "gradient2": {"type": "top", "start": "#fff", "end": "#173050", "legacy": "#173050"},
-  "gradient3": {"type": "top", "start": "#dddbdd", "end": "#fcfcfc", "legacy": "#fcfcfc"},
-  "gradient4": {"type": "top", "start": "#0e1d31", "end": "#173050", "legacy": "#173050"},
-  "gradient5": {"type": "top", "start": "#747476", "end": "#424242", "legacy": "#747476"},
+  "color2": "#ccc",
+  "gradient0": {"type": "top", "start": "#000", "end": "#000", "legacy": "#000"},
+  "gradient1": {"type": "top", "start": "#747476", "end": "#424242", "legacy": "#747476"},
+  "gradient2": {"type": "top", "start": "#e9eded", "end": "#fdfefe", "legacy": "#e9eded"},
   "border0": "0",
   "border1": "1px solid #fff",
   "border2": "1px solid #000",
@@ -41,5 +39,6 @@
   "opacity3": ".75",
   "decoration0": "none",
   "decoration1": "underline",
-  "lineHeight1": "1.2"
+  "lineHeight1": "1.2",
+  "outline1": "3px solid #d85a1a"
 }
