@@ -22,6 +22,12 @@ jp.template = function(data) {
  */
   this.layoutContent_;
 
+ /*
+  * The style queue
+  * @type {Array}
+ */
+  this.styleQueue_ = [];
+
 
   this.dustHelper_ =  new jp.dustHelper(data);
 };
@@ -102,7 +108,7 @@ jp.template.prototype.getStyleContent = function() {
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
-jp.template.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
+jp.template.prototype.setLayouts = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
       layoutContent = util.findJsonData([jsonTitle, 'layoutContext'], jsonData);
@@ -113,11 +119,11 @@ jp.template.prototype.renderJsonLayouts = function(jsonTitle, jsonData) {
 
 
 /*
- * Set the layouts defined from the json
+ * Set the styles defined from the json
  * @param {string} jsonTitle the data object's key name.
  * @param {Object} jsonData the data object
 */
-jp.template.prototype.renderJsonStyles = function(jsonTitle, jsonData) {
+jp.template.prototype.setStyles = function(jsonTitle, jsonData) {
   var util = new jp.utility(),
       style = util.findJsonData([jsonTitle, 'style'], jsonData);
       styleContent = util.findJsonData([jsonTitle, 'styleContext'], jsonData);
@@ -211,6 +217,32 @@ jp.template.prototype.convertLayoutToNode = function(htmlString) {
 
 
 /*
+ * Adds a style to the queue
+ * @param {string} name the name of the layout to load.
+ * @param {string} path the uri of the layout to load.
+*/
+jp.template.prototype.addStyle = function(name, path) {
+  this.styleQueue_.push({'name':name, 'path':path});
+}
+
+/*
+ * Loads all styles from the queue in order
+*/
+jp.template.prototype.loadNextStyle = function(callback) {
+  var style;
+  if (this.styleQueue_.length > 0) {
+    // Get the last item in the queue (lowest priority first)
+    style = this.styleQueue_[this.styleQueue_.length -1];
+    this.loadStyle(style['name'], style['path']);
+    this.styleQueue_.pop();
+  } else {
+    jp.events.talk(this, jp.events.allStylesLoaded);
+  }
+}
+
+
+
+/*
  * Gets a dust layout based on a path and renders it once loaded.
  * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
@@ -220,7 +252,7 @@ jp.template.prototype.loadStyle = function(name, path) {
       success = function(data) {
         compiled = dust.compile(data, name);
         dust.loadSource(compiled);
-        jp.events.talk(this, jp.events.styleLoad);
+        this.renderStyle(name);
       }.bind(this);
 
   $.get(path, success).fail(function() {
@@ -232,9 +264,8 @@ jp.template.prototype.loadStyle = function(name, path) {
 /*
  * Renders a dust layout to the dom
  * @param {string} name the layout name.
- * @param {Element} parent the parent element to load the template into.
 */
-jp.template.prototype.renderStyle = function(name, parent) {
+jp.template.prototype.renderStyle = function(name) {
   var data = this.data_,
       styleContent = this.getStyleContent(),
       jsonData = data[styleContent],
@@ -245,6 +276,7 @@ jp.template.prototype.renderStyle = function(name, parent) {
           return;
         }
         this.addCssText(info);
+        this.loadNextStyle();
     }.bind(this);
   if (!jsonData) {
     jp.error(jp.errorCodes['dustMarkup'], name);
@@ -304,7 +336,6 @@ jp.template.prototype.addCssText = function(cssText) {
     // Most browsers
     cssNode.appendChild(cssTextNode);
   }
-  jp.events.talk(this, jp.events.styleLoaded);
 };
 
 

@@ -16,8 +16,8 @@ jp.errorCodes = {
   'layoutMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
   'layoutMissingFromConfig': {'code': 'dust-004', 'detail': 'Dust layout missing from config'},
   'layoutContentMissing': {'code': 'dust-005', 'detail': 'Dust layout content missing'},
-  'styleMissing': {'code': 'dust-003', 'detail': 'Dust layout missing'},
-  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing'},
+  'styleMissing': {'code': 'dust-003', 'detail': 'CSS stylesheet missing'},
+  'styleMissingFromConfig': {'code': 'css-001', 'detail': 'Styles missing from config'},
   'localizedStringMissing': {'code': 'dust-004', 'detail': 'Localized text not found for id'},
   'gradientMissing': {'code': 'dust-005', 'detail': 'Gradient not found for id'}
 };

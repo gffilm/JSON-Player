@@ -37,14 +37,31 @@ jp.page = function(modelName, data) {
   // Create a template instance
   this.template_ = new jp.template(data);
 
-  // Load styles and layouts
+  // Set and load styles and layouts
+  this.setStyles();
+  this.setLayouts();
   this.loadStyles();
-  this.loadLayouts();
 
   // Add event listeners
-  jp.events.listen(this.template_, jp.events.styleLoad, this.renderStyle, this);
+  jp.events.listen(this.template_, jp.events.allStylesLoaded, this.loadLayouts, this);
   jp.events.listen(this.template_, jp.events.layoutLoad, this.renderLayout, this);
   jp.events.listen(this.template_, jp.events.elementRendered, this.activate, this);
+};
+
+
+/*
+ * Sets the styles for the template to render
+*/
+jp.page.prototype.setStyles = function() {
+  this.template_.setStyles(this.modelName_, this.getModel());
+};
+
+
+/*
+ * Sets the styles for the template to render
+*/
+jp.page.prototype.setLayouts = function() {
+  this.template_.setLayouts(this.modelName_, this.getModel());
 };
 
 
@@ -52,8 +69,8 @@ jp.page = function(modelName, data) {
  * Loads the layout for a specific model
 */
 jp.page.prototype.loadStyles = function() {
-  this.template_.renderJsonStyles(this.modelName_, this.getModel());
-  var  styles = this.template_.getStyles(),
+  this.template_.setStyles(this.modelName_, this.getModel());
+  var styles = this.template_.getStyles(),
       totalStyles = styles.length,
       i;
 
@@ -61,8 +78,11 @@ jp.page.prototype.loadStyles = function() {
   // Load the layouts
   if (styles) {
     for (i = 0; i < totalStyles; i++) {
-      this.template_.loadStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
+      // Add highest priority first
+      this.template_.addStyle(this.modelName_, '../courses/45666/assets/global/styles/' + styles[i] + '.css');
+      this.template_.addStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
     }
+    this.template_.loadNextStyle();
   } else {
     jp.error(jp.errorCodes['styleMissingFromConfig']);
   }
@@ -73,7 +93,6 @@ jp.page.prototype.loadStyles = function() {
  * Loads the layout for a specific model
 */
 jp.page.prototype.loadLayouts = function() {
-  this.template_.renderJsonLayouts(this.modelName_, this.getModel());
   // Load the layouts
   if (this.template_.getLayout()) {
     this.template_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.template_.getLayout() + '.html');

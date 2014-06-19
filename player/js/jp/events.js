@@ -5,8 +5,7 @@
 
 jp.events = {
   layoutLoad: 'layoutLoad',
-  styleLoad: 'styleLoad',
-  styleLoaded: 'styleLoaded',
+  allStylesLoaded: 'allStylesLoaded',
   elementRendered: 'elementRendered',
   reboot: 'reboot',
   removeCss: 'removeCss'

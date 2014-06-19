@@ -1,0 +1,10 @@
+.hidden {
+    border: 0 none !important;
+    width: 0 !important;
+    height: 0;
+    top: auto;
+    position: fixed;
+    left: -10000px;
+    overflow: hidden;
+    z-index: -1;
+}
