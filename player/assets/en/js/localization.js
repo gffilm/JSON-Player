@@ -12,7 +12,7 @@
 		"next" : "Next"
 	},
 	"course": {
-		"title": "Course Title",
-		"description": "Course Description"
+		"title": "Player Title",
+		"description": "Player Description"
 	}
 }

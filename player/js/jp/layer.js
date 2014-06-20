@@ -1,12 +1,11 @@
 
 /*
  * The layer class
- * @param {string} the current model name.
- * @param {Object} data the data. 
+ * @param {string} name the current layer name.
 */
-jp.layer = function(modelName) {
+jp.layer = function(name) {
 
-  if (!modelName) {
+  if (!name) {
     return;
   }
 
@@ -17,13 +16,16 @@ jp.layer = function(modelName) {
   this.utility_ = new jp.utility();
 
   // Set the model name
-  this.modelName_ = modelName;
+  this.name_ = name;
 
   // Set the config
-  this.config_ = jp.getConfig()[modelName];
+  this.config_ = jp.getConfig()[name];
+
+  // Set the model name
+  this.modelName_ = this.config_['model'];
 
   // Set the model to the current model name
-  this.model_ = jp.getModel()[modelName];
+  this.model_ = jp.getModel()[this.modelName_];
 
   // The parent element for this node
   this.parentElement_ = this.getModel()['parentElement'];
@@ -47,7 +49,7 @@ jp.layer = function(modelName) {
   this.isRequired_ = this.getModel()['required'] || true;
 
   // The model's children
-  this.children_ = this.getModel()['children'];
+  this.children_ = this.getModel()['children'] || [];
 
   // Create a template instance
   this.template_ = new jp.template(this.modelName_);

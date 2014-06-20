@@ -1,15 +1,13 @@
 
 /*
  * The player class
- * @param {string} the model name.
- * @param {Object} the model. 
+ * @param {string} name the player name.
  * @extends jp.layer
 */
-jp.player = function(modelName) {
-  jp.base(this, modelName);
+jp.player = function(name) {
+  jp.base(this, name);
 
   this.isReady_ = false;
-  return;
 
   this.page_ = new jp.layer('c0001');
 

@@ -81,15 +81,16 @@ jp.engine.prototype.getAssetPaths = function() {
   'assets/global/js/layoutContext.js',
   'assets/global/js/styleContext.js',
   'assets/global/js/dustContext.js',
-  'assets/' + language + '/js/config.js',
   'assets/' + language + '/js/localization.js'
   ];
 
   if (courseId) {
     assetPaths.push(
     '../courses/' + courseId + '/assets/global/js/config.js',
+    '../courses/' + courseId + '/assets/global/js/model.js',
+    '../courses/' + courseId + '/assets/global/js/layoutContext.js',
+    '../courses/' + courseId + '/assets/global/js/styleContext.js',
     '../courses/' + courseId + '/assets/global/js/dustContext.js',
-    '../courses/' + courseId + '/assets/' + language + '/js/config.js',
     '../courses/' + courseId + '/assets/' + language + '/js/localization.js'
     );
   }
@@ -132,27 +133,17 @@ jp.engine.prototype.loadJSON = function(paths, callback) {
  * @param {Object} data the json data.
 */
 jp.engine.prototype.handleJSONLoad = function(path, data) {
-  var fileType = path.split('/')[path.split('/').length -1].split('.')[0],
-      extended = false;
+  var fileType = path.split('/')[path.split('/').length -1].split('.')[0];
   // Increment the number of paths loaded
   this.assetPathsLoaded_++;
 
   // Extend the jsonData object with the filetype
   if (!this.content_[fileType]) {
     this.content_[fileType] = data;
-  } else {
-    for (i in data) {
-      if (this.content_[fileType][i]) {
-        $.extend(this.content_[fileType][i], data[i]);
-      } else {
-        this.content_[fileType][i] = data[i];
-      }
-      extended = true;
-    }
-    if (!extended) {
-      $.extend(this.content_[fileType], data);
-    }
   }
+
+  // Extend the jsonData object with the data
+  $.extend(this.content_[fileType], data);
   
   // Determine if we have loaded all paths
   if (this.totalAssetPaths_ === this.assetPathsLoaded_) {
