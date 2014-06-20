@@ -2,25 +2,41 @@
 /*
  * The Template class
 */
-jp.template = function(data) {
+jp.template = function(modelName) {
 
  /*
   * The layout name
   * @type {string}
  */
-  this.layout_;
+  this.templateName_ = modelName;
 
   /*
  * Set the data
  * @type {Object}
  */
-  this.data_ = data;
+  this.config_ = jp.getConfig()[modelName];
 
- /*
-  * The layout content
+  /*
+  * The layout context
   * @type {string}
  */
-  this.layoutContent_;
+  this.layoutName_ = this.getConfig()['layoutContext'];
+
+  this.layoutContext_ = jp.getLayoutContext()[this.layoutName_];
+
+  /*
+  * The layout context
+  * @type {string}
+ */
+  this.styleName_ = this.getConfig()['styleContext'];
+
+  this.styleContext_ = jp.getStyleContext()[this.styleName_];
+
+  /*
+  * The styles
+  * @type {string|Array}
+ */
+  this.styles_ = this.getConfig()['style'];
 
  /*
   * The style queue
@@ -29,43 +45,25 @@ jp.template = function(data) {
   this.styleQueue_ = [];
 
 
-  this.dustHelper_ =  new jp.dustHelper(data);
-};
-
-
-
-/*
- * Sets the layout
- * @param {string} layout the layout name.
-*/
-jp.template.prototype.setLayout = function(layout) {
-  this.layout_ = layout;
+  this.dustHelper_ =  new jp.dustHelper();
 };
 
 
 /*
- * Gets the layout
- * @return {string} the layout name.
+ * Gets the template name
+ * @return {string} the template name.
 */
-jp.template.prototype.getLayout = function() {
-  return this.layout_;
-};
-
-/*
- * Sets the layout content
- * @param {string} layoutContent the layout name.
-*/
-jp.template.prototype.setLayoutContent = function(layoutContent) {
-  this.layoutContent_ = layoutContent;
+jp.template.prototype.getTemplateName = function() {
+  return this.templateName_;
 };
 
 
 /*
- * Gets the layout content
- * @return {string} the layout name.
+ * Gets the layout context
+ * @return {string} the layout.
 */
-jp.template.prototype.getLayoutContent = function() {
-  return this.layoutContent_;
+jp.template.prototype.getLayoutContext = function() {
+  return this.layoutContext_;
 };
 
 
@@ -74,7 +72,7 @@ jp.template.prototype.getLayoutContent = function() {
  * @param {string|Array} style the style name.
 */
 jp.template.prototype.setStyle = function(style) {
-  this.style_ = style;
+  this.styles_ = style;
 };
 
 
@@ -83,15 +81,7 @@ jp.template.prototype.setStyle = function(style) {
  * @return {string|Array} the style name.
 */
 jp.template.prototype.getStyles = function() {
-  return this.style_;
-};
-
-/*
- * Sets the style content
- * @param {string} styleContent the style name.
-*/
-jp.template.prototype.setStyleContent = function(styleContent) {
-  this.styleContent_ = styleContent;
+  return this.styles_;
 };
 
 
@@ -99,49 +89,86 @@ jp.template.prototype.setStyleContent = function(styleContent) {
  * Gets the style content
  * @return {string} the style name.
 */
-jp.template.prototype.getStyleContent = function() {
-  return this.styleContent_;
-};
-
-/*
- * Set the layouts defined from the json
- * @param {string} jsonTitle the data object's key name.
- * @param {Object} jsonData the data object
-*/
-jp.template.prototype.setLayouts = function(jsonTitle, jsonData) {
-  var util = new jp.utility(),
-      layout = util.findJsonData([jsonTitle, 'layout'], jsonData);
-      layoutContent = util.findJsonData([jsonTitle, 'layoutContext'], jsonData);
-
-  this.setLayout(layout);
-  this.setLayoutContent(layoutContent);
+jp.template.prototype.getStyleContext = function() {
+  return this.styleContext_;
 };
 
 
 /*
- * Set the styles defined from the json
- * @param {string} jsonTitle the data object's key name.
- * @param {Object} jsonData the data object
+ * Adds a style to the queue
+ * @param {string} path the uri of the layout to load.
 */
-jp.template.prototype.setStyles = function(jsonTitle, jsonData) {
-  var util = new jp.utility(),
-      style = util.findJsonData([jsonTitle, 'style'], jsonData);
-      styleContent = util.findJsonData([jsonTitle, 'styleContext'], jsonData);
+jp.template.prototype.addStyle = function(path) {
+  this.styleQueue_.push(path);
+}
 
-  this.setStyle(style);
-  this.setStyleContent(styleContent);
+/*
+ * Loads all styles from the queue in order
+*/
+jp.template.prototype.loadNextStyle = function(callback) {
+  var style;
+  if (this.styleQueue_.length > 0) {
+    // Get the last item in the queue (lowest priority first)
+    style = this.styleQueue_[this.styleQueue_.length -1];
+    this.loadStyle(style);
+    this.styleQueue_.pop();
+  } else {
+    jp.events.talk(this, jp.events.allStylesLoaded);
+  }
+}
+
+
+
+/*
+ * Gets a dust layout based on a path and renders it once loaded.
+ * @param {string} path the uri of the layout to load.
+*/
+jp.template.prototype.loadStyle = function(path) {
+  var compiled,
+      success = function(data) {
+        compiled = dust.compile(data, this.getTemplateName());
+        dust.loadSource(compiled);
+        this.renderStyle(this.getTemplateName());
+      }.bind(this);
+
+  $.get(path, success).fail(function() {
+    jp.error(jp.errorCodes['styleMissing']);
+  });
+}
+
+
+/*
+ * Renders a dust layout to the dom
+*/
+jp.template.prototype.renderStyle = function() {
+  var styleContext = this.getStyleContext(),
+      dustHelpers = this.dustHelper_;
+
+      callback = function(error, info) {
+        if (error) {
+          jp.error(jp.errorCodes['dustError'], error);
+          return;
+        }
+        this.addCssText(info);
+        this.loadNextStyle();
+    }.bind(this);
+  if (!styleContext) {
+    jp.error(jp.errorCodes['dustMarkup'], this.getTemplateName());
+  } else {
+    $.extend(styleContext, dustHelpers);
+    dust.render(this.getTemplateName(), styleContext, callback);
+  }
 };
 
 
 /*
  * Gets a dust layout based on a path and renders it once loaded.
- * @param {string} name the name of the layout to load.
  * @param {string} path the uri of the layout to load.
 */
-jp.template.prototype.loadLayout = function(name, path) {
+jp.template.prototype.loadLayout = function(path) {
   var compiled,
       success = function(data) {
-        compiled = dust.compile(data, name);
+        compiled = dust.compile(data, this.getTemplateName());
         dust.loadSource(compiled);
         jp.events.talk(this, jp.events.layoutLoad);
       }.bind(this);
@@ -153,12 +180,9 @@ jp.template.prototype.loadLayout = function(name, path) {
 
 /*
  * Renders a dust layout and stores the element
- * @param {string} name the layout name.
 */
-jp.template.prototype.renderLayout = function(name) {
-  var data = this.data_,
-      layoutContent = this.getLayoutContent(),
-      jsonData = data[layoutContent],
+jp.template.prototype.renderLayout = function() {
+  var layoutContext = this.getLayoutContext(),
       dustHelpers = this.dustHelper_,
       element;
 
@@ -174,11 +198,11 @@ jp.template.prototype.renderLayout = function(name) {
       }
     }.bind(this);
 
-  if (!jsonData) {
+  if (!layoutContext) {
     jp.error(jp.errorCodes['dustMarkup']);
   } else {
-    $.extend(jsonData, dustHelpers);
-    dust.render(name, jsonData, callback);
+    $.extend(layoutContext, dustHelpers);
+    dust.render(this.getTemplateName(), layoutContext, callback);
   }
 };
 
@@ -217,76 +241,6 @@ jp.template.prototype.convertLayoutToNode = function(htmlString) {
   }
 };
 
-
-/*
- * Adds a style to the queue
- * @param {string} name the name of the layout to load.
- * @param {string} path the uri of the layout to load.
-*/
-jp.template.prototype.addStyle = function(name, path) {
-  this.styleQueue_.push({'name':name, 'path':path});
-}
-
-/*
- * Loads all styles from the queue in order
-*/
-jp.template.prototype.loadNextStyle = function(callback) {
-  var style;
-  if (this.styleQueue_.length > 0) {
-    // Get the last item in the queue (lowest priority first)
-    style = this.styleQueue_[this.styleQueue_.length -1];
-    this.loadStyle(style['name'], style['path']);
-    this.styleQueue_.pop();
-  } else {
-    jp.events.talk(this, jp.events.allStylesLoaded);
-  }
-}
-
-
-
-/*
- * Gets a dust layout based on a path and renders it once loaded.
- * @param {string} name the name of the layout to load.
- * @param {string} path the uri of the layout to load.
-*/
-jp.template.prototype.loadStyle = function(name, path) {
-  var compiled,
-      success = function(data) {
-        compiled = dust.compile(data, name);
-        dust.loadSource(compiled);
-        this.renderStyle(name);
-      }.bind(this);
-
-  $.get(path, success).fail(function() {
-    jp.error(jp.errorCodes['styleMissing']);
-  });
-}
-
-
-/*
- * Renders a dust layout to the dom
- * @param {string} name the layout name.
-*/
-jp.template.prototype.renderStyle = function(name) {
-  var data = this.data_,
-      styleContent = this.getStyleContent(),
-      jsonData = data[styleContent],
-      dustHelpers = this.dustHelper_;
-      callback = function(error, info) {
-        if (error) {
-          jp.error(jp.errorCodes['dustError'], error);
-          return;
-        }
-        this.addCssText(info);
-        this.loadNextStyle();
-    }.bind(this);
-  if (!jsonData) {
-    jp.error(jp.errorCodes['dustMarkup'], name);
-  } else {
-    $.extend(jsonData, dustHelpers);
-    dust.render(name, jsonData, callback);
-  }
-};
 
 
 /**
@@ -348,5 +302,14 @@ jp.template.prototype.addCssText = function(cssText) {
  */
 jp.template.prototype.getRenderedLayout = function() {
   return this.renderedElement_;
+};
+
+
+/*
+ * Gets the config data
+ * @return {Object} the config data object.
+*/
+jp.template.prototype.getConfig = function() {
+  return this.config_;
 };
 

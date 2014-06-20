@@ -6,7 +6,7 @@ jp.dustHelper = function() {
 
   this.utility_ = new jp.utility();
 
-  this.data_ = jp.engineInstance.getJsonData();
+  this.data_ = jp.getContent();
 
   this.config_ = this.data_['config'];
 

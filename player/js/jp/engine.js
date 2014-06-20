@@ -15,7 +15,7 @@
  * Set the jsonData
  * @type {Object}
  */
-  this.jsonData_ = {};
+  this.content_ = {};
 
  /*
  * The layout type
@@ -77,6 +77,9 @@ jp.engine.prototype.getAssetPaths = function() {
   //The Asset paths to load
   assetPaths = [
   'assets/global/js/config.js',
+  'assets/global/js/model.js',
+  'assets/global/js/layoutContext.js',
+  'assets/global/js/styleContext.js',
   'assets/global/js/dustContext.js',
   'assets/' + language + '/js/config.js',
   'assets/' + language + '/js/localization.js'
@@ -135,19 +138,19 @@ jp.engine.prototype.handleJSONLoad = function(path, data) {
   this.assetPathsLoaded_++;
 
   // Extend the jsonData object with the filetype
-  if (!this.jsonData_[fileType]) {
-    this.jsonData_[fileType] = data;
+  if (!this.content_[fileType]) {
+    this.content_[fileType] = data;
   } else {
     for (i in data) {
-      if (this.jsonData_[fileType][i]) {
-        $.extend(this.jsonData_[fileType][i], data[i]);
+      if (this.content_[fileType][i]) {
+        $.extend(this.content_[fileType][i], data[i]);
       } else {
-        this.jsonData_[fileType][i] = data[i];
+        this.content_[fileType][i] = data[i];
       }
       extended = true;
     }
     if (!extended) {
-      $.extend(this.jsonData_[fileType], data);
+      $.extend(this.content_[fileType], data);
     }
   }
   
@@ -162,10 +165,11 @@ jp.engine.prototype.handleJSONLoad = function(path, data) {
  * The engine is now loaded, start the player
 */
 jp.engine.prototype.createPlayer = function() {
-  this.title_ = this.findDataByType(['course', 'title'], 'localization');
+  this.title_ = jp.getLocalization()['course']['title'];
   document.title = this.title_;
   // Create the player
-  this.player_ = new jp.player('player', this.getConfig());
+  this.player_ = new jp.player('player');
+  myP = this.player_;
   jp.events.listen(this.player_, jp.events.readyToActivate, this.startPlayer, this);
 };
 
@@ -179,21 +183,21 @@ jp.engine.prototype.startPlayer = function() {
 
 
 /*
- * Gets the jsondata
+ * Gets the content
  * @return {Object} the data object.
 */
-jp.engine.prototype.getJsonData = function() {
-  return this.jsonData_;
+jp.engine.prototype.getContent = function() {
+  return this.content_;
 };
 
 
 /*
- * Gets the jsondata
+ * Gets the config
  * @param {Array} data the data to look for.
  * @return {*} the data or null.
 */
 jp.engine.prototype.getConfig = function(data) {
-  return this.getJsonData()['config'];
+  return this.getContent()['config'];
 };
 
 
@@ -204,5 +208,39 @@ jp.engine.prototype.getConfig = function(data) {
  * @return {*} the data or null.
 */
 jp.engine.prototype.findDataByType = function(data, type) {
-  return this.utility_.findJsonData(data, this.getJsonData()[type]);
+  return this.utility_.findJsonData(data, this.getContent()[type]);
+};
+
+jp.getContent = function() {
+  return jp.engineInstance.getContent();
+};
+
+
+jp.getConfig = function() {
+  return jp.getContent()['config'];
+};
+
+
+jp.getModel = function() {
+  return jp.getContent()['model'];
+};
+
+
+jp.getDustContext = function() {
+  return jp.getContent()['dustContext'];
+};
+
+
+jp.getLayoutContext = function() {
+  return jp.getContent()['layoutContext'];
+};
+
+
+jp.getStyleContext = function() {
+  return jp.getContent()['styleContext'];
+};
+
+
+jp.getLocalization = function() {
+  return jp.getContent()['localization'];
 };

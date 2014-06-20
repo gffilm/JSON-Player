@@ -4,40 +4,35 @@
  * @param {string} the current model name.
  * @param {Object} data the data. 
 */
-jp.layer = function(modelName, data) {
+jp.layer = function(modelName) {
+
+  if (!modelName) {
+    return;
+  }
 
   /*
  * Set the utility
  * @type {Object}
  */
   this.utility_ = new jp.utility();
- /*
- * Set the data
- * @type {Object}
- */
-  this.data_ = data;
 
   // Set the model name
   this.modelName_ = modelName;
 
+  // Set the config
+  this.config_ = jp.getConfig()[modelName];
+
   // Set the model to the current model name
-  this.model_ = data[modelName];
+  this.model_ = jp.getModel()[modelName];
 
   // The parent element for this node
-  this.parentElement_;
+  this.parentElement_ = this.getModel()['parentElement'];
 
   // The child element for this node
-  this.childElement_;
+  this.childElement_ = this.getModel()['childElement'];
 
   // Set the model to the current model name
-  this.contextName_ = this.model_['modelContext'];
-
-  this.modelContext_ = this.findData([this.contextName_]);
-
-  this.buttonMap_ = this.modelContext_['buttonMap'];
-
-  // The model's title
-  this.title_;
+  this.buttonMap_ = this.getModel()['buttonMap'];
 
   // The model's parent
   this.parent_;
@@ -48,15 +43,16 @@ jp.layer = function(modelName, data) {
   // The model's active state
   this.isActivated_ = false;
 
+  // The model's active state
+  this.isRequired_ = this.getModel()['required'] || true;
+
   // The model's children
-  this.children_ = [];
+  this.children_ = this.getModel()['children'];
 
   // Create a template instance
-  this.template_ = new jp.template(data);
+  this.template_ = new jp.template(this.modelName_);
 
   // Set and load styles and layouts
-  this.setStyles();
-  this.setLayouts();
   this.loadStyles();
 
   // Add event listeners
@@ -70,7 +66,7 @@ jp.layer = function(modelName, data) {
  * Sets the styles for the template to render
 */
 jp.layer.prototype.setStyles = function() {
-  this.template_.setStyles(this.modelName_, this.getModel());
+  this.template_.setStyles();
 };
 
 
@@ -113,37 +109,6 @@ jp.layer.prototype.isActivated = function() {
 /*
  * Sets the parent element for this layer
 */
-jp.layer.prototype.setParentElement = function() {
-  var element = this.modelContext_['parentElement'];
-
-  if (!element && this.getParent()) {
-    element = this.getParent().getChildElement();
-  }
-  if (!element) {
-    myThis = this;
-    jp.error(jp.errorCodes['parentMissing'], this.modelName_);
-    return;
-  }
-
-  this.parentElement_ = element;
-};
-
-
-/*
- * Sets the parent element for this layer
-*/
-jp.layer.prototype.setChildElement = function() {
-  var element = this.modelContext_['childElement'];
-  if (!element && this.getChildren()) {
-    //jp.error(jp.errorCodes['childMissing'], this.modelName_);
-    return;
-  }
-  this.childElement_ = element;
-};
-
-/*
- * Sets the parent element for this layer
-*/
 jp.layer.prototype.getChildElement = function() {
   return this.childElement_;
 };
@@ -160,7 +125,7 @@ jp.layer.prototype.getParentElement = function() {
  * Sets the styles for the template to render
 */
 jp.layer.prototype.setLayouts = function() {
-  this.template_.setLayouts(this.modelName_, this.getModel());
+  this.template_.setLayouts();
 };
 
 
@@ -168,7 +133,6 @@ jp.layer.prototype.setLayouts = function() {
  * Loads the layout for a specific model
 */
 jp.layer.prototype.loadStyles = function() {
-  this.template_.setStyles(this.modelName_, this.getModel());
   var styles = this.template_.getStyles(),
       totalStyles = styles.length,
       i;
@@ -183,8 +147,8 @@ jp.layer.prototype.loadStyles = function() {
     }
     for (i = 0; i < totalStyles; i++) {
       // Add highest priority first
-      this.template_.addStyle(this.modelName_, '../courses/45666/assets/global/styles/' + styles[i] + '.css');
-      this.template_.addStyle(this.modelName_, 'assets/global/styles/' + styles[i] + '.css');
+      this.template_.addStyle('../courses/45666/assets/global/styles/' + styles[i] + '.css');
+      this.template_.addStyle('assets/global/styles/' + styles[i] + '.css');
     }
     this.template_.loadNextStyle();
   } else {
@@ -198,8 +162,8 @@ jp.layer.prototype.loadStyles = function() {
 */
 jp.layer.prototype.loadLayouts = function() {
   // Load the layouts
-  if (this.template_.getLayout()) {
-    this.template_.loadLayout(this.modelName_, 'assets/global/layouts/' + this.template_.getLayout() + '.html');
+  if (this.template_.layoutName_) {
+    this.template_.loadLayout('assets/global/layouts/' + this.template_.layoutName_ + '.html');
   } else {
     jp.error(jp.errorCodes['layoutMissingFromConfig']);
   }
@@ -210,7 +174,7 @@ jp.layer.prototype.loadLayouts = function() {
  * Renders the layout
 */
 jp.layer.prototype.renderLayout = function() {
-  this.template_.renderLayout(this.modelName_);
+  this.template_.renderLayout();
 };
 
 
@@ -219,8 +183,6 @@ jp.layer.prototype.renderLayout = function() {
 */
 jp.layer.prototype.getReadyToActivate = function() {
   this.setReady(true);
-  this.setParentElement();
-  this.setChildElement();
   jp.events.talk(this, jp.events.readyToActivate);
 }
 
@@ -231,18 +193,9 @@ jp.layer.prototype.getReadyToActivate = function() {
 jp.layer.prototype.activate = function() {
   this.template_.renderDom(this.getParentElement());
   this.matchButtonEvents();
-  this.setHtml();
   this.setActivated(true);
   jp.events.talk(this, jp.events.activated);
 }
-
-
-/*
- * Sets all html text
-*/
-jp.layer.prototype.setHtml = function() {
-  jp.ui.setHtmlById('title', this.title_);
-};
 
 
 /*
@@ -314,7 +267,7 @@ jp.layer.prototype.renderDom = function() {
  * Loads the style
 */
 jp.layer.prototype.loadStyle = function() {
-  this.template_.loadStyle(this.modelName_);
+  this.template_.loadStyle();
 };
 
 
@@ -322,7 +275,7 @@ jp.layer.prototype.loadStyle = function() {
  * Renders the style
 */
 jp.layer.prototype.renderStyle = function() {
-  this.template_.renderStyle(this.modelName_);
+  this.template_.renderStyle();
 };
 
 
@@ -332,15 +285,6 @@ jp.layer.prototype.renderStyle = function() {
 */
 jp.layer.prototype.getModel = function() {
   return this.model_;
-};
-
-
-/*
- * Sets the title
- * @return {Object} the data object.
-*/
-jp.layer.prototype.setTitle = function(title) {
-  this.title_ = title;
 };
 
 
@@ -381,19 +325,9 @@ jp.layer.prototype.setChildren = function(child) {
 
 
 /*
- * Gets the jsondata
- * @return {Object} the data object.
+ * Gets the config data
+ * @return {Object} the config data object.
 */
-jp.layer.prototype.getData = function() {
-  return this.data_;
-};
-
-/*
- * Finds specific jsondata
- * @param {Array} data the data to look for.
- * @param {string} type the type to look for.
- * @return {*} the data or null.
-*/
-jp.layer.prototype.findData = function(data) {
-  return this.utility_.findJsonData(data, this.getData());
+jp.layer.prototype.getConfig = function() {
+  return this.config_;
 };

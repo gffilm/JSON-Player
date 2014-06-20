@@ -5,15 +5,13 @@
  * @param {Object} the model. 
  * @extends jp.layer
 */
-jp.player = function(modelName, model) {
-  jp.base(this, modelName, model);
-
-  this.setParentElement();
-  this.setChildElement();
+jp.player = function(modelName) {
+  jp.base(this, modelName);
 
   this.isReady_ = false;
+  return;
 
-  this.page_ = new jp.layer('c0001', model);
+  this.page_ = new jp.layer('c0001');
 
   // Set the parent to this instance
   this.page_.setParent(this);
