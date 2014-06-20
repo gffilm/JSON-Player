@@ -1,36 +1,53 @@
 
 /*
  * The Template class
+ * @param {string} name the current template name.
 */
-jp.template = function(modelName) {
+jp.template = function(name) {
 
  /*
   * The layout name
   * @type {string}
  */
-  this.templateName_ = modelName;
+  this.name_ = name;
 
   /*
  * Set the data
  * @type {Object}
  */
-  this.config_ = jp.getConfig()[modelName];
+  this.config_ = jp.getConfig()[name];
+
+  /*
+  * The layout name
+  * @type {string}
+ */
+  this.layoutName_ = this.getConfig()['layout'];
+
+  /*
+  * The layout context name
+  * @type {string}
+ */
+  this.layoutContextName_ = this.getConfig()['layoutContext'];
+
 
   /*
   * The layout context
-  * @type {string}
+  * @type {Object}
  */
-  this.layoutName_ = this.getConfig()['layoutContext'];
-
-  this.layoutContext_ = jp.getLayoutContext()[this.layoutName_];
+  this.layoutContext_ = jp.getLayoutContext()[this.layoutContextName_];
 
   /*
-  * The layout context
+  * The style context name
   * @type {string}
  */
-  this.styleName_ = this.getConfig()['styleContext'];
+  this.styleContextName_ = this.getConfig()['styleContext'];
 
-  this.styleContext_ = jp.getStyleContext()[this.styleName_];
+
+  /*
+  * The style context
+  * @type {Object}
+ */
+  this.styleContext_ = jp.getStyleContext()[this.styleContextName_];
 
   /*
   * The styles
@@ -50,11 +67,21 @@ jp.template = function(modelName) {
 
 
 /*
- * Gets the template name
- * @return {string} the template name.
+ * Gets the name
+ * @return {string} the layout name.
 */
-jp.template.prototype.getTemplateName = function() {
-  return this.templateName_;
+jp.template.prototype.getName = function() {
+  return this.name_;
+};
+
+
+
+/*
+ * Gets the layout name
+ * @return {string} the layout name.
+*/
+jp.template.prototype.getLayoutName = function() {
+  return this.layoutName_;
 };
 
 
@@ -126,9 +153,9 @@ jp.template.prototype.loadNextStyle = function(callback) {
 jp.template.prototype.loadStyle = function(path) {
   var compiled,
       success = function(data) {
-        compiled = dust.compile(data, this.getTemplateName());
+        compiled = dust.compile(data, this.getName());
         dust.loadSource(compiled);
-        this.renderStyle(this.getTemplateName());
+        this.renderStyle(this.getName());
       }.bind(this);
 
   $.get(path, success).fail(function() {
@@ -153,10 +180,10 @@ jp.template.prototype.renderStyle = function() {
         this.loadNextStyle();
     }.bind(this);
   if (!styleContext) {
-    jp.error(jp.errorCodes['dustMarkup'], this.getTemplateName());
+    jp.error(jp.errorCodes['dustMarkup'], this.getName());
   } else {
     $.extend(styleContext, dustHelpers);
-    dust.render(this.getTemplateName(), styleContext, callback);
+    dust.render(this.getName(), styleContext, callback);
   }
 };
 
@@ -168,12 +195,12 @@ jp.template.prototype.renderStyle = function() {
 jp.template.prototype.loadLayout = function(path) {
   var compiled,
       success = function(data) {
-        compiled = dust.compile(data, this.getTemplateName());
+        compiled = dust.compile(data, this.getLayoutName());
         dust.loadSource(compiled);
         jp.events.talk(this, jp.events.layoutLoad);
       }.bind(this);
   $.get(path, success).fail(function() {
-    jp.error(jp.errorCodes['layoutMissing']);
+    jp.error(jp.errorCodes['layoutMissing'], path);
   });
 }
 
@@ -202,7 +229,7 @@ jp.template.prototype.renderLayout = function() {
     jp.error(jp.errorCodes['dustMarkup']);
   } else {
     $.extend(layoutContext, dustHelpers);
-    dust.render(this.getTemplateName(), layoutContext, callback);
+    dust.render(this.getLayoutName(), layoutContext, callback);
   }
 };
 

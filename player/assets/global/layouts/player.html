@@ -3,11 +3,11 @@
 	<div class="control-bar">
 	<div class="progress"></div>
 	<div class="control-bar-buttons">
-	  {#elements}
+	  {#content}
 		<div id="{id}" class="{class}" role="button" tabIndex="{?tabIndex}{tabIndex}{:else}-1{/tabIndex}" title="{#localize id=title /}">
 			{#localize id=html /}
 		</div>
-	  {/elements}
+	  {/content}
 	</div>
 </div>
 </div>

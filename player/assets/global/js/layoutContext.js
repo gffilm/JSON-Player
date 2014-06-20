@@ -2,7 +2,7 @@
 "player": {
     "id": "player",
     "class": "jp-player",
-    "elements":[
+    "content":[
         {"id": "skip-nav","class": "hidden", "html":"player.skipContent", "tabIndex": 1},
         {"id": "reboot","class": "button", "html":"player.reboot", "tabIndex": 1},
         {"id": "menu","class": "button", "title":"player.menuTitle", "html":"player.menu", "tabIndex": 2},
